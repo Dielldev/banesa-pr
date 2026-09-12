@@ -1,0 +1,11 @@
+# Raw scrape intermediates — regenerate with scraper/run.py + storefront.py + sites.py
+data/raw_*.json
+data/merrjep_stubs.json
+
+# Python
+__pycache__/
+*.py[cod]
+
+# Tooling
+.vercel
+.DS_Store

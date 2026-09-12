@@ -1,0 +1,705 @@
+<title>Banesa Prishtina e Re</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap">
+<style>
+:root{
+  --bg:#f4f6fa; --panel:#ffffff; --sunk:#eef1f6;
+  --ink:#121926; --ink2:#596577; --ink3:#8d97a7;
+  --line:#e6eaf1; --line2:#f0f3f8;
+  --blue:#1f5fe0; --blue-dark:#1a4fbd; --blue-soft:#eaf1fe;
+  --gold:#f0a615; --green:#12855f; --red:#c1462f;
+  --shadow:0 1px 2px rgba(18,25,38,.05), 0 6px 20px rgba(18,25,38,.06);
+  --shadow-sm:0 1px 2px rgba(18,25,38,.06);
+  --r:14px; --r-sm:10px;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);
+  font-family:"Plus Jakarta Sans",system-ui,-apple-system,"Segoe UI",sans-serif;
+  font-size:14px;line-height:1.5;-webkit-font-smoothing:antialiased}
+h1,h2,h3,h4{margin:0;font-weight:700;text-wrap:balance;letter-spacing:-.01em}
+button,input,select{font:inherit;color:inherit}
+button{cursor:pointer}
+a{color:var(--blue);text-decoration:none}
+:focus-visible{outline:2px solid var(--blue);outline-offset:2px;border-radius:6px}
+.num{font-variant-numeric:tabular-nums}
+svg{display:block}
+
+/* ============ top bar ============ */
+.topbar{background:var(--panel);border-bottom:1px solid var(--line);position:sticky;top:0;z-index:40}
+.topbar-in{max-width:1560px;margin:0 auto;padding:11px 20px;display:flex;align-items:center;gap:22px}
+.logo{display:flex;align-items:center;gap:9px;font-weight:800;font-size:16px;letter-spacing:-.02em;white-space:nowrap}
+.logo .mark{width:31px;height:31px;border-radius:9px;background:var(--blue);display:grid;place-items:center;color:#fff;flex:none}
+.navtabs{display:flex;gap:4px;align-items:center}
+.navtab{border:none;background:none;padding:8px 15px;border-radius:999px;font-size:13.5px;font-weight:600;color:var(--ink2)}
+.navtab:hover{background:var(--sunk);color:var(--ink)}
+.navtab[aria-selected="true"]{background:var(--blue-soft);color:var(--blue)}
+.navtab .n{margin-left:5px;font-size:11.5px;opacity:.75}
+.searchwrap{margin-left:auto;position:relative;display:flex;align-items:center;flex:0 1 340px;min-width:150px}
+.searchwrap svg.mag{position:absolute;left:13px;color:var(--ink3);pointer-events:none}
+#q{width:100%;padding:10px 34px 10px 38px;border:1px solid var(--line);border-radius:999px;
+  background:var(--sunk);font-size:13.5px}
+#q::placeholder{color:var(--ink3)}
+#q:focus{background:var(--panel);border-color:#cfd9e8;outline:none}
+.qclear{position:absolute;right:8px;width:22px;height:22px;border:none;border-radius:50%;
+  background:var(--sunk);color:var(--ink2);display:none;place-items:center;font-size:13px;line-height:1}
+.qclear.on{display:grid}
+.meta-chip{display:flex;flex-direction:column;line-height:1.25;white-space:nowrap;padding-left:18px;border-left:1px solid var(--line)}
+.meta-chip b{font-size:13px;font-weight:700}
+.meta-chip span{font-size:11.5px;color:var(--ink3)}
+
+/* ============ shell ============ */
+.shell{max-width:1560px;margin:0 auto;padding:18px 20px 40px;
+  display:grid;grid-template-columns:238px minmax(0,1fr) 400px;gap:18px;align-items:start}
+
+/* ============ filter rail ============ */
+.rail{background:var(--panel);border:1px solid var(--line);border-radius:var(--r);
+  box-shadow:var(--shadow-sm);position:sticky;top:76px;max-height:calc(100vh - 92px);overflow-y:auto}
+.rail-head{display:flex;align-items:center;justify-content:space-between;padding:16px 16px 12px}
+.rail-head h2{font-size:15px;font-weight:700}
+.clearall{border:none;background:none;color:var(--blue);font-size:12.5px;font-weight:600;padding:0}
+.clearall:hover{text-decoration:underline}
+.fg{border-top:1px solid var(--line2);padding:13px 16px}
+.fg-head{display:flex;align-items:center;gap:8px;margin-bottom:11px}
+.fg-head svg{color:var(--ink3);flex:none}
+.fg-head h3{font-size:12.5px;font-weight:700;flex:1;letter-spacing:-.005em}
+.fg-x{border:none;background:none;color:var(--ink3);padding:2px;line-height:0;border-radius:5px}
+.fg-x:hover{background:var(--sunk);color:var(--ink2)}
+.opts{display:flex;flex-direction:column;gap:9px;max-height:188px;overflow-y:auto}
+.opt{display:flex;align-items:center;gap:9px;font-size:13px;color:var(--ink2);cursor:pointer}
+.opt input{accent-color:var(--blue);width:15px;height:15px;margin:0;flex:none}
+.opt .lbl{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.opt .ct{font-size:11.5px;color:var(--ink3)}
+.opt:hover .lbl{color:var(--ink)}
+.minmax{display:flex;align-items:center;gap:8px}
+.minmax input{width:100%;min-width:0;padding:8px 10px;border:1px solid var(--line);
+  border-radius:var(--r-sm);background:var(--panel);font-size:12.5px}
+.minmax input::placeholder{color:var(--ink3)}
+.minmax span{color:var(--ink3);font-size:12px}
+.pillrow{display:flex;flex-wrap:wrap;gap:7px}
+.pill{border:1px solid var(--line);background:var(--panel);border-radius:999px;padding:6px 13px;
+  font-size:12.5px;font-weight:600;color:var(--ink2)}
+.pill:hover{border-color:#c9d6ea;color:var(--ink)}
+.pill[aria-pressed="true"]{background:var(--blue);border-color:var(--blue);color:#fff}
+
+/* dual slider */
+.slider{position:relative;height:32px;margin-top:14px}
+.slider .track{position:absolute;top:14px;left:0;right:0;height:4px;border-radius:2px;background:var(--sunk)}
+.slider .fill{position:absolute;top:14px;height:4px;border-radius:2px;background:var(--blue)}
+.slider input[type=range]{position:absolute;top:6px;left:0;width:100%;margin:0;background:none;
+  pointer-events:none;-webkit-appearance:none;appearance:none;height:20px}
+.slider input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;pointer-events:auto;
+  width:16px;height:16px;border-radius:50%;background:var(--blue);border:3px solid #fff;
+  box-shadow:0 1px 4px rgba(18,25,38,.3);cursor:grab}
+.slider input[type=range]::-moz-range-thumb{pointer-events:auto;width:16px;height:16px;border-radius:50%;
+  background:var(--blue);border:3px solid #fff;box-shadow:0 1px 4px rgba(18,25,38,.3);cursor:grab}
+.slider-ends{display:flex;justify-content:space-between;font-size:11.5px;color:var(--ink3);margin-top:-4px}
+
+/* ============ results ============ */
+.resbar{display:flex;align-items:center;justify-content:space-between;gap:14px;margin-bottom:14px;flex-wrap:wrap}
+.resbar p{margin:0;font-size:13.5px;color:var(--ink2)}
+.resbar p b{color:var(--ink);font-weight:700}
+.sortbox{display:flex;align-items:center;gap:8px;font-size:12.5px;color:var(--ink3)}
+.sortbox select{padding:8px 11px;border:1px solid var(--line);border-radius:var(--r-sm);
+  background:var(--panel);font-size:12.5px;font-weight:600;color:var(--ink)}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(232px,1fr));gap:16px}
+
+.pcard{background:var(--panel);border:1px solid var(--line);border-radius:var(--r);overflow:hidden;
+  box-shadow:var(--shadow-sm);cursor:pointer;transition:box-shadow .16s,border-color .16s;display:flex;flex-direction:column}
+.pcard:hover{box-shadow:var(--shadow);border-color:#d7e0ee}
+.pcard[aria-current="true"]{border-color:var(--blue);box-shadow:0 0 0 2px var(--blue-soft),var(--shadow)}
+.pc-img{position:relative;aspect-ratio:132/100;background-color:var(--sunk);background-repeat:no-repeat}
+.pc-badge{position:absolute;top:11px;left:11px;background:rgba(255,255,255,.94);color:var(--ink);
+  font-size:11px;font-weight:700;padding:5px 10px;border-radius:7px;box-shadow:var(--shadow-sm)}
+.pc-badge.prio{background:var(--blue);color:#fff}
+.pc-bm{position:absolute;right:11px;bottom:11px;width:30px;height:30px;border:none;border-radius:8px;
+  background:rgba(255,255,255,.92);color:var(--ink2);display:grid;place-items:center;box-shadow:var(--shadow-sm)}
+.pc-bm:hover{background:#fff;color:var(--blue)}
+.pc-bm[aria-pressed="true"]{background:var(--blue);color:#fff}
+.pc-over{position:absolute;left:0;right:0;bottom:0;padding:28px 11px 11px;color:#fff;
+  background:linear-gradient(to top,rgba(9,14,24,.9) 12%,rgba(9,14,24,.55) 55%,rgba(9,14,24,0))}
+.pc-over h3{font-size:13.5px;font-weight:700;line-height:1.3;margin:0 40px 3px 0;
+  display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.pc-over p{margin:0;font-size:11.5px;opacity:.86;display:flex;align-items:center;gap:4px;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.pc-foot{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:10px 12px}
+.pc-price{font-size:15px;font-weight:800;letter-spacing:-.02em}
+.pc-price small{font-size:11px;font-weight:600;color:var(--ink3);margin-left:3px}
+.pc-score{display:flex;align-items:center;gap:4px;font-size:12px;font-weight:700;color:var(--ink2)}
+.pc-score svg{color:var(--gold)}
+.showmore{grid-column:1/-1;padding:13px;border:1px solid var(--line);background:var(--panel);
+  border-radius:var(--r);font-size:13px;font-weight:600;color:var(--ink2)}
+.showmore:hover{border-color:var(--blue);color:var(--blue)}
+.empty{grid-column:1/-1;background:var(--panel);border:1px dashed var(--line);border-radius:var(--r);
+  padding:44px 20px;text-align:center;color:var(--ink3)}
+
+/* ============ detail ============ */
+.detail{position:sticky;top:76px;max-height:calc(100vh - 92px);overflow-y:auto;
+  display:flex;flex-direction:column;gap:14px}
+.dcard{background:var(--panel);border:1px solid var(--line);border-radius:var(--r);
+  box-shadow:var(--shadow-sm);padding:14px}
+.d-hero{aspect-ratio:132/100;border-radius:var(--r-sm);background-color:var(--sunk);
+  background-repeat:no-repeat;position:relative;margin-bottom:14px}
+.d-hero .pc-badge{top:12px;left:12px}
+.d-top{display:flex;align-items:flex-start;justify-content:space-between;gap:12px}
+.d-top h2{font-size:16.5px;line-height:1.3}
+.d-price{font-size:19px;font-weight:800;letter-spacing:-.025em;white-space:nowrap;text-align:right}
+.d-price small{display:block;font-size:11.5px;font-weight:600;color:var(--ink3);letter-spacing:0}
+.d-loc{display:flex;align-items:center;gap:5px;color:var(--ink2);font-size:12.5px;margin:7px 0 0}
+.d-loc svg{color:var(--blue);flex:none}
+.dtabs{display:flex;gap:20px;border-bottom:1px solid var(--line);margin:14px 0 0}
+.dtab{border:none;background:none;padding:0 0 10px;font-size:13px;font-weight:700;color:var(--ink3);
+  border-bottom:2px solid transparent;margin-bottom:-1px}
+.dtab[aria-selected="true"]{color:var(--blue);border-bottom-color:var(--blue)}
+.dpane{padding-top:13px}
+.dpane h4{font-size:12.5px;font-weight:700;margin-bottom:6px}
+.dpane p.body{margin:0;font-size:12.8px;color:var(--ink2);line-height:1.62}
+.specs{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:13px}
+.spec{display:flex;align-items:center;gap:6px;background:var(--sunk);border-radius:9px;
+  padding:8px 9px;font-size:11.5px;font-weight:600;color:var(--ink2);min-width:0}
+.spec svg{color:var(--ink3);flex:none}
+.spec span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.dbtns{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:14px}
+.btn{padding:11px;border-radius:var(--r-sm);font-size:13px;font-weight:700;text-align:center;border:1px solid transparent}
+.btn-ghost{background:var(--blue-soft);color:var(--blue);border-color:transparent}
+.btn-ghost:hover{background:#ddeafd}
+.btn-ghost[aria-pressed="true"]{background:var(--blue-soft);color:var(--blue-dark)}
+.btn-solid{background:var(--blue);color:#fff;display:flex;align-items:center;justify-content:center;gap:6px}
+.btn-solid:hover{background:var(--blue-dark)}
+
+/* value breakdown */
+.vbar{margin:12px 0 4px}
+.vbar-row{display:flex;justify-content:space-between;font-size:11.5px;color:var(--ink3);margin-bottom:5px}
+.vbar-track{height:8px;border-radius:4px;background:var(--sunk);position:relative;overflow:hidden}
+.vbar-fill{position:absolute;inset:0 auto 0 0;border-radius:4px;background:var(--blue)}
+.vbar-med{position:absolute;top:-3px;bottom:-3px;width:2px;background:var(--ink);border-radius:1px}
+.parts{display:flex;flex-direction:column;gap:7px;margin-top:13px}
+.part{display:grid;grid-template-columns:96px 1fr 34px;align-items:center;gap:9px;font-size:11.5px;color:var(--ink2)}
+.part .pt{height:6px;border-radius:3px;background:var(--sunk);overflow:hidden}
+.part .pt i{display:block;height:100%;background:var(--blue);border-radius:3px}
+.part .pv{text-align:right;font-weight:700;color:var(--ink)}
+.kv{display:flex;justify-content:space-between;gap:12px;padding:7px 0;border-bottom:1px solid var(--line2);font-size:12.5px}
+.kv:last-child{border-bottom:none}
+.kv dt{color:var(--ink3)}
+.kv dd{margin:0;font-weight:600;text-align:right}
+
+/* map */
+.mapcard{padding:0;overflow:hidden}
+.mapcard .cap{display:flex;align-items:center;justify-content:space-between;padding:11px 14px 0}
+.mapcard .cap h4{font-size:12.5px;font-weight:700}
+.mapcard .cap span{font-size:11px;color:var(--ink3)}
+.hoodmap{width:100%;height:auto;display:block}
+.hoodmap .zone{fill:#e4eaf3;stroke:#fff;stroke-width:2;transition:fill .16s}
+.hoodmap .zone.on{fill:var(--blue)}
+.hoodmap .zlbl{font-size:9px;font-weight:700;fill:var(--ink2);pointer-events:none}
+.hoodmap .zlbl.on{fill:#fff}
+.hoodmap .road{stroke:#cfd8e6;stroke-width:3;fill:none;stroke-linecap:round}
+
+@media (max-width:1280px){
+  .shell{grid-template-columns:220px minmax(0,1fr);}
+  .detail{grid-column:1/-1;position:static;max-height:none;
+    display:grid;grid-template-columns:1fr 1fr;gap:14px;align-items:start}
+}
+@media (max-width:860px){
+  .shell{grid-template-columns:1fr;padding:14px}
+  .rail{position:static;max-height:none}
+  .detail{grid-template-columns:1fr}
+  .topbar-in{flex-wrap:wrap;gap:12px}
+  .searchwrap{flex:1 1 100%;margin-left:0;order:3}
+  .meta-chip{display:none}
+  .navtabs{order:2}
+}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+
+<header class="topbar">
+  <div class="topbar-in">
+    <div class="logo">
+      <span class="mark"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 10.5 12 3l9 7.5"/><path d="M5 10v10h14V10"/><path d="M9.5 20v-5h5v5"/></svg></span>
+      Banesa
+    </div>
+    <nav class="navtabs" id="navtabs">
+      <button class="navtab" data-view="all" aria-selected="true">Buy<span class="n" id="n-all"></span></button>
+      <button class="navtab" data-view="prio" aria-selected="false">Priority agencies<span class="n" id="n-prio"></span></button>
+      <button class="navtab" data-view="saved" aria-selected="false">Saved<span class="n" id="n-saved"></span></button>
+    </nav>
+    <div class="searchwrap">
+      <svg class="mag" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.2-3.2"/></svg>
+      <input id="q" type="search" placeholder="Search lagje, agency, keyword…" autocomplete="off">
+      <button class="qclear" id="qclear" aria-label="Clear search">&times;</button>
+    </div>
+    <div class="meta-chip"><b id="mc-count"></b><span id="mc-date"></span></div>
+  </div>
+</header>
+
+<main class="shell">
+  <aside class="rail">
+    <div class="rail-head"><h2>Custom Filter</h2><button class="clearall" id="clearall">Clear all</button></div>
+
+    <div class="fg">
+      <div class="fg-head">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 21s7-5.6 7-11a7 7 0 1 0-14 0c0 5.4 7 11 7 11Z"/><circle cx="12" cy="10" r="2.6"/></svg>
+        <h3>Lagjja</h3><button class="fg-x" data-clear="hoods" aria-label="Clear lagje"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M6 6l12 12M18 6 6 18"/></svg></button>
+      </div>
+      <div class="opts" id="f-hoods"></div>
+    </div>
+
+    <div class="fg">
+      <div class="fg-head">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 7v10M9.5 9.6h4a1.9 1.9 0 0 1 0 3.8h-3a1.9 1.9 0 0 0 0 3.8h4"/></svg>
+        <h3>Price Range</h3><button class="fg-x" data-clear="price" aria-label="Clear price"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M6 6l12 12M18 6 6 18"/></svg></button>
+      </div>
+      <div class="opts" id="f-price"></div>
+      <div class="slider" id="pslider">
+        <div class="track"></div><div class="fill" id="pfill"></div>
+        <input type="range" id="pmin" min="0" max="100" value="0" aria-label="Minimum price">
+        <input type="range" id="pmax" min="0" max="100" value="100" aria-label="Maximum price">
+      </div>
+      <div class="slider-ends"><span id="plo"></span><span id="phi"></span></div>
+    </div>
+
+    <div class="fg">
+      <div class="fg-head">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h6M4 4v6M20 20h-6m6 0v-6"/><rect x="4" y="4" width="16" height="16" rx="2"/></svg>
+        <h3>Surface area</h3><button class="fg-x" data-clear="area" aria-label="Clear area"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M6 6l12 12M18 6 6 18"/></svg></button>
+      </div>
+      <div class="minmax">
+        <input id="amin" type="number" inputmode="numeric" placeholder="Min m²">
+        <span>&ndash;</span>
+        <input id="amax" type="number" inputmode="numeric" placeholder="Max m²">
+      </div>
+    </div>
+
+    <div class="fg">
+      <div class="fg-head">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 11.5 12 4l9 7.5"/><path d="M5.5 11v9h13v-9"/><path d="M10 20v-4.5h4V20"/></svg>
+        <h3>Type of place</h3><button class="fg-x" data-clear="rooms" aria-label="Clear type"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M6 6l12 12M18 6 6 18"/></svg></button>
+      </div>
+      <div class="opts" id="f-rooms"></div>
+    </div>
+
+    <div class="fg">
+      <div class="fg-head">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 20v-7a8 8 0 0 1 16 0v7"/><path d="M2 20h20M9 20v-4h6v4"/></svg>
+        <h3>Amenities</h3><button class="fg-x" data-clear="feats" aria-label="Clear amenities"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M6 6l12 12M18 6 6 18"/></svg></button>
+      </div>
+      <div class="pillrow" id="f-feats"></div>
+    </div>
+
+    <div class="fg">
+      <div class="fg-head">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="7" width="18" height="13" rx="2"/><path d="M8 7V5a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2M3 12h18"/></svg>
+        <h3>Agency</h3><button class="fg-x" data-clear="agency" aria-label="Clear agency"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M6 6l12 12M18 6 6 18"/></svg></button>
+      </div>
+      <div class="minmax"><select id="f-agency" style="width:100%;padding:8px 10px;border:1px solid var(--line);border-radius:var(--r-sm);background:var(--panel);font-size:12.5px"><option value="">All agencies</option></select></div>
+    </div>
+  </aside>
+
+  <section>
+    <div class="resbar">
+      <p id="count"></p>
+      <div class="sortbox">
+        <label for="sort">Sort by</label>
+        <select id="sort">
+          <option value="score">Best value</option>
+          <option value="ppm">€/m² — lowest</option>
+          <option value="price">Price — lowest</option>
+          <option value="priced">Price — highest</option>
+          <option value="area">Size — largest</option>
+          <option value="new">Newest</option>
+        </select>
+      </div>
+    </div>
+    <div class="grid" id="grid"></div>
+  </section>
+
+  <aside class="detail" id="detail"></aside>
+</main>
+
+<script>
+const DATA = /*__DATA__*/;
+const L = DATA.listings;
+const S = DATA.stats;
+const COLS = 10, ROWS = 8;                      /* sprite sheet geometry */
+const $ = id => document.getElementById(id);
+const eur = n => "€" + Math.round(n).toLocaleString("en-US");
+
+const FEATS = {parking:"Parking", elevator:"Ashensor", new_build:"Ndërtim i ri", balcony:"Ballkon",
+               renovated:"Rinovuar", basement:"Bodrum", furnished:"E mobiluar", duplex:"Dupleks", heating:"Ngrohje"};
+const PRICE_BANDS = [
+  ["Under €70,000", 0, 70000], ["€70,000 – €120,000", 70000, 120000],
+  ["€120,000 – €200,000", 120000, 200000], ["More than €200,000", 200000, Infinity],
+];
+const PMIN = 20000, PMAX = 500000;
+
+const ICON = {
+  pin:'<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M12 21s7-5.6 7-11a7 7 0 1 0-14 0c0 5.4 7 11 7 11Z"/><circle cx="12" cy="10" r="2.4"/></svg>',
+  star:'<svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><path d="m12 3 2.6 5.7 6.4.7-4.8 4.3 1.3 6.3L12 17l-5.5 3 1.3-6.3L3 9.4l6.4-.7Z"/></svg>',
+  bm:'<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linejoin="round"><path d="M6 4h12v17l-6-4.2L6 21Z"/></svg>',
+  bmOn:'<svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M6 4h12v17l-6-4.2L6 21Z"/></svg>',
+  area:'<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M8 3v18M3 8h18"/></svg>',
+  bed:'<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 18V8m0 4h18v6M7 12V9h5v3"/></svg>',
+  floor:'<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 20h16M4 15h16M4 10h16M4 5h16"/></svg>',
+  tick:'<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="m5 13 4 4L19 7"/></svg>',
+  ext:'<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M14 4h6v6M20 4l-9 9M18 14v5a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h5"/></svg>',
+};
+
+/* sprite cell -> background css (percentage trick keeps the 132:100 cell square to its box) */
+function sprite(sp){
+  if(!sp) return "";
+  return `background-image:url(sprites/s${sp[0]}.jpg);background-size:${COLS*100}% ${ROWS*100}%;` +
+         `background-position:${(sp[1]*100)/(COLS-1)}% ${(sp[2]*100)/(ROWS-1)}%`;
+}
+
+/* ---------- saved shortlist (per browser) ---------- */
+let saved = new Set();
+try { saved = new Set(JSON.parse(localStorage.getItem("banesa.saved") || "[]")); } catch(e){}
+function persist(){ try { localStorage.setItem("banesa.saved", JSON.stringify([...saved])); } catch(e){} }
+
+const state = {view:"all", hoods:new Set(), rooms:new Set(), feats:new Set(), agency:"",
+               band:null, pmin:PMIN, pmax:PMAX, amin:null, amax:null, q:"", sort:"score"};
+const PAGE = 24;
+let shown = PAGE, current = null, tab = "overview";
+
+/* ---------- header ---------- */
+$("mc-count").textContent = S.total.toLocaleString("en-US") + " listings";
+$("mc-date").textContent = new Date(DATA.generated).toLocaleDateString("en-GB",{day:"numeric",month:"short",year:"numeric"});
+$("n-all").textContent = S.total;
+$("n-prio").textContent = S.priority ?? 0;
+
+/* ---------- filter controls ---------- */
+const hoodCounts = {};
+L.forEach(l => { if(l.hood) hoodCounts[l.hood] = (hoodCounts[l.hood]||0)+1; });
+$("f-hoods").innerHTML = Object.entries(hoodCounts).sort((a,b)=>b[1]-a[1]).map(([h,c]) =>
+  `<label class="opt"><input type="checkbox" data-hood="${h}"><span class="lbl">${h}</span><span class="ct">${c}</span></label>`).join("");
+
+$("f-price").innerHTML = PRICE_BANDS.map((b,i) =>
+  `<label class="opt"><input type="radio" name="band" data-band="${i}"><span class="lbl">${b[0]}</span></label>`).join("")
+  + `<label class="opt"><input type="radio" name="band" data-band="custom" checked><span class="lbl">Custom</span></label>`;
+
+const ROOM_OPTS = [[0,"Garsoniere"],[1,"1 dhomë gjumi"],[2,"2 dhoma gjumi"],[3,"3 dhoma gjumi"],[4,"4+ dhoma gjumi"]];
+$("f-rooms").innerHTML = ROOM_OPTS.map(([v,lab]) => {
+  const c = L.filter(l => v===4 ? l.rooms>=4 : l.rooms===v).length;
+  return `<label class="opt"><input type="checkbox" data-room="${v}"><span class="lbl">${lab}</span><span class="ct">${c}</span></label>`;
+}).join("");
+
+$("f-feats").innerHTML = Object.entries(FEATS).map(([k,v]) =>
+  `<button class="pill" data-feat="${k}" aria-pressed="false">${v}</button>`).join("");
+
+[...new Set(L.map(l=>l.agency).filter(Boolean))].sort().forEach(a => {
+  const o = document.createElement("option"); o.value = a; o.textContent = a; $("f-agency").appendChild(o);
+});
+
+/* ---------- price slider ---------- */
+const pct = v => ((v - PMIN) / (PMAX - PMIN)) * 100;
+const val = p => Math.round(PMIN + (p/100) * (PMAX - PMIN));
+function drawSlider(){
+  const a = pct(state.pmin), b = pct(state.pmax);
+  $("pfill").style.left = a + "%"; $("pfill").style.width = Math.max(0, b-a) + "%";
+  $("plo").textContent = eur(state.pmin);
+  $("phi").textContent = state.pmax >= PMAX ? eur(PMAX) + "+" : eur(state.pmax);
+}
+function sliderInput(){
+  let lo = +$("pmin").value, hi = +$("pmax").value;
+  if(lo > hi) [lo, hi] = [hi, lo];
+  state.pmin = val(lo); state.pmax = val(hi); state.band = null;
+  const custom = document.querySelector('[data-band="custom"]'); if(custom) custom.checked = true;
+  drawSlider(); render();
+}
+$("pmin").addEventListener("input", sliderInput);
+$("pmax").addEventListener("input", sliderInput);
+drawSlider();
+
+/* ---------- events ---------- */
+$("f-hoods").addEventListener("change", e => {
+  const h = e.target.dataset.hood; if(!h) return;
+  e.target.checked ? state.hoods.add(h) : state.hoods.delete(h); render();
+});
+$("f-rooms").addEventListener("change", e => {
+  const r = e.target.dataset.room; if(r===undefined) return;
+  e.target.checked ? state.rooms.add(+r) : state.rooms.delete(+r); render();
+});
+$("f-price").addEventListener("change", e => {
+  const b = e.target.dataset.band; if(b===undefined) return;
+  if(b === "custom"){ state.band = null; }
+  else {
+    state.band = +b;
+    state.pmin = PMIN; state.pmax = PMAX;
+    $("pmin").value = 0; $("pmax").value = 100; drawSlider();
+  }
+  render();
+});
+$("f-feats").addEventListener("click", e => {
+  const b = e.target.closest("[data-feat]"); if(!b) return;
+  const k = b.dataset.feat, on = b.getAttribute("aria-pressed") === "true";
+  b.setAttribute("aria-pressed", String(!on));
+  on ? state.feats.delete(k) : state.feats.add(k);
+  render();
+});
+$("f-agency").addEventListener("change", e => { state.agency = e.target.value; render(); });
+$("sort").addEventListener("change", e => { state.sort = e.target.value; render(); });
+["amin","amax"].forEach(id => $(id).addEventListener("input", () => {
+  state[id] = $(id).value === "" ? null : +$(id).value; render();
+}));
+$("q").addEventListener("input", e => {
+  state.q = e.target.value.trim().toLowerCase();
+  $("qclear").classList.toggle("on", !!state.q);
+  render();
+});
+$("qclear").addEventListener("click", () => {
+  $("q").value = ""; state.q = ""; $("qclear").classList.remove("on"); render();
+});
+$("navtabs").addEventListener("click", e => {
+  const b = e.target.closest("[data-view]"); if(!b) return;
+  state.view = b.dataset.view;
+  [...$("navtabs").children].forEach(t => t.setAttribute("aria-selected", String(t === b)));
+  render();
+});
+document.querySelectorAll("[data-clear]").forEach(btn => btn.addEventListener("click", () => {
+  const g = btn.dataset.clear;
+  if(g === "hoods"){ state.hoods.clear(); document.querySelectorAll("#f-hoods input").forEach(i=>i.checked=false); }
+  if(g === "rooms"){ state.rooms.clear(); document.querySelectorAll("#f-rooms input").forEach(i=>i.checked=false); }
+  if(g === "feats"){ state.feats.clear(); document.querySelectorAll("#f-feats .pill").forEach(p=>p.setAttribute("aria-pressed","false")); }
+  if(g === "agency"){ state.agency = ""; $("f-agency").value = ""; }
+  if(g === "area"){ state.amin = state.amax = null; $("amin").value = $("amax").value = ""; }
+  if(g === "price"){
+    state.band = null; state.pmin = PMIN; state.pmax = PMAX;
+    $("pmin").value = 0; $("pmax").value = 100;
+    const c = document.querySelector('[data-band="custom"]'); if(c) c.checked = true;
+    drawSlider();
+  }
+  render();
+}));
+$("clearall").addEventListener("click", () => {
+  document.querySelectorAll("[data-clear]").forEach(b => b.click());
+  $("q").value = ""; state.q = ""; $("qclear").classList.remove("on");
+  state.sort = "score"; $("sort").value = "score";
+  render();
+});
+
+/* ---------- filtering ---------- */
+const SORTS = {
+  score:(a,b)=>(b.score ?? -1)-(a.score ?? -1),
+  ppm:(a,b)=>(a.eur_m2 ?? 1e9)-(b.eur_m2 ?? 1e9),
+  price:(a,b)=>(a.price ?? 1e9)-(b.price ?? 1e9),
+  priced:(a,b)=>(b.price ?? -1)-(a.price ?? -1),
+  area:(a,b)=>(b.area ?? -1)-(a.area ?? -1),
+  new:(a,b)=>(a.days_old ?? 1e9)-(b.days_old ?? 1e9),
+};
+
+function passes(l){
+  if(state.view === "prio" && !l.prio) return false;
+  if(state.view === "saved" && !saved.has(l.id)) return false;
+  if(state.hoods.size && !state.hoods.has(l.hood)) return false;
+  if(state.rooms.size){
+    if(l.rooms == null) return false;
+    if(![...state.rooms].some(r => r===4 ? l.rooms>=4 : l.rooms===r)) return false;
+  }
+  if(state.feats.size && ![...state.feats].every(f => (l.features||[]).includes(f))) return false;
+  if(state.agency && l.agency !== state.agency) return false;
+  if(state.band !== null){
+    const [, lo, hi] = PRICE_BANDS[state.band];
+    if(l.price == null || l.price < lo || l.price >= hi) return false;
+  } else if(state.pmin > PMIN || state.pmax < PMAX){
+    if(l.price == null || l.price < state.pmin || l.price > state.pmax) return false;
+  }
+  if(state.amin != null && (l.area == null || l.area < state.amin)) return false;
+  if(state.amax != null && (l.area == null || l.area > state.amax)) return false;
+  if(state.q){
+    const hay = `${l.title} ${l.hood||""} ${l.agency||""} ${l.description||""}`.toLowerCase();
+    if(!hay.includes(state.q)) return false;
+  }
+  return true;
+}
+
+/* ---------- cards ---------- */
+function cardHTML(l){
+  const on = saved.has(l.id);
+  return `<article class="pcard" data-id="${l.id}" aria-current="${current && current.id===l.id}">
+    <div class="pc-img" style="${sprite(l.sp)}">
+      <span class="pc-badge${l.prio?" prio":""}">${l.prio ? "Priority agency" : (l.hood || "Pristina")}</span>
+      <button class="pc-bm" data-save="${l.id}" aria-pressed="${on}" aria-label="Save listing">${on?ICON.bmOn:ICON.bm}</button>
+      <div class="pc-over">
+        <h3>${l.title || "Banesë në shitje"}</h3>
+        <p>${ICON.pin}${l.hood || "Prishtinë"}${l.area ? " · " + l.area + " m²" : ""}</p>
+      </div>
+    </div>
+    <div class="pc-foot">
+      <div class="pc-price">${l.price ? eur(l.price) : "On ask"}<small>${l.eur_m2 ? eur(l.eur_m2)+"/m²" : ""}</small></div>
+      <div class="pc-score">${l.score!=null ? ICON.star + l.score : ""}</div>
+    </div>
+  </article>`;
+}
+
+function render(reset=true){
+  if(reset) shown = PAGE;
+  const out = L.filter(passes).sort(SORTS[state.sort]);
+  $("n-saved").textContent = saved.size;
+
+  const priced = out.filter(l=>l.eur_m2).map(l=>l.eur_m2).sort((a,b)=>a-b);
+  const med = priced.length ? priced[Math.floor(priced.length/2)] : null;
+  $("count").innerHTML = `<b>${out.length.toLocaleString("en-US")}</b> ${out.length===1?"listing":"listings"}`
+    + (med ? ` · median <b>${eur(med)}</b>/m² in this selection` : "");
+
+  if(!out.length){
+    $("grid").innerHTML = `<div class="empty">${state.view==="saved"
+      ? "Nothing saved yet — tap the bookmark on a card to shortlist it."
+      : "No listings match these filters. Try widening the price or size range."}</div>`;
+    if(state.view==="saved") { current = null; renderDetail(); }
+    return;
+  }
+  if(!current || !out.some(l => l.id === current.id)) current = out[0];
+
+  $("grid").innerHTML = out.slice(0, shown).map(cardHTML).join("")
+    + (out.length > shown
+        ? `<button class="showmore" id="more">Show ${Math.min(PAGE, out.length-shown)} more · ${out.length-shown} still hidden</button>`
+        : "");
+  renderDetail();
+}
+
+/* ---------- detail panel ---------- */
+function specs(l){
+  const s = [];
+  if(l.area) s.push([ICON.area, l.area + " m²"]);
+  if(l.rooms != null) s.push([ICON.bed, l.rooms===0 ? "Garsoniere" : l.rooms + " dhoma gjumi"]);
+  if(l.floor != null) s.push([ICON.floor, "Kati " + l.floor]);
+  (l.features||[]).forEach(f => s.push([ICON.tick, FEATS[f] || f]));
+  return s.slice(0,6).map(([i,t]) => `<div class="spec">${i}<span>${t}</span></div>`).join("");
+}
+
+function valuePane(l){
+  if(l.eur_m2 == null) return `<p class="body">This ad gives no price or no size, so it can't be valued against the lagje median.</p>`;
+  const med = l.hood_median_eur_m2 || l.eur_m2;
+  const top = Math.max(l.eur_m2, med) * 1.25;
+  const parts = l.score_parts || {};
+  const MAXP = {value:70, features:16, freshness:6, seller:3, priority:5};
+  const rows = Object.entries(MAXP).filter(([k]) => parts[k] != null).map(([k,max]) =>
+    `<div class="part"><span>${k==="value"?"Price vs lagje":k==="features"?"Build & amenities":k==="freshness"?"Freshness":k==="seller"?"Verified seller":"Priority agency"}</span>
+      <span class="pt"><i style="width:${Math.max(2,(parts[k]/max)*100)}%"></i></span>
+      <span class="pv">${parts[k]}</span></div>`).join("");
+  return `<div class="vbar">
+      <div class="vbar-row"><span>This flat · <b style="color:var(--ink)">${eur(l.eur_m2)}/m²</b></span>
+        <span>${l.hood || "area"} median · ${eur(med)}/m²</span></div>
+      <div class="vbar-track">
+        <div class="vbar-fill" style="width:${(l.eur_m2/top)*100}%;background:${l.discount_pct>=7?"var(--green)":l.discount_pct<=-7?"var(--red)":"var(--blue)"}"></div>
+        <div class="vbar-med" style="left:${(med/top)*100}%"></div>
+      </div>
+    </div>
+    <p class="body" style="margin-top:9px">${l.score_reason || ""}</p>
+    <div class="parts">${rows}</div>`;
+}
+
+function detailsPane(l){
+  const rows = [
+    ["Agency", l.agency || "Private seller"],
+    ["Lagjja", l.hood || "—"],
+    ["Asking price", l.price ? (l.price_derived ? "~"+eur(l.price)+" (from €/m²)" : eur(l.price)) : "On ask"],
+    ["Price per m²", l.eur_m2 ? eur(l.eur_m2) : "—"],
+    ["Surface", l.area ? l.area + " m²" + (l.area_uncertain ? " · ambiguous in the ad" : "") : "not stated"],
+    ["Listed", l.days_old == null ? "—" : l.days_old===0 ? "today" : l.days_old===1 ? "yesterday" : l.days_old + " days ago"],
+    ["Value score", l.score != null ? l.score + " / 100" : "not scored"],
+  ];
+  return `<dl style="margin:0">${rows.map(([k,v]) => `<div class="kv"><dt>${k}</dt><dd>${v}</dd></div>`).join("")}</dl>`;
+}
+
+function renderDetail(){
+  const l = current;
+  if(!l){ $("detail").innerHTML = `<div class="dcard"><p class="body">Pick a listing to see the detail.</p></div>`; return; }
+  const on = saved.has(l.id);
+  const pane = tab === "value" ? valuePane(l) : tab === "details" ? detailsPane(l)
+    : `<h4>Description</h4><p class="body">${l.description || "This ad has no description text."}</p>
+       <div class="specs">${specs(l)}</div>`;
+
+  $("detail").innerHTML = `
+    <div class="dcard">
+      <div class="d-hero" style="${sprite(l.sp)}">
+        <span class="pc-badge${l.prio?" prio":""}">${l.prio ? "Priority agency" : (l.hood || "Pristina")}</span>
+      </div>
+      <div class="d-top">
+        <h2>${l.title || "Banesë në shitje"}</h2>
+        <div class="d-price">${l.price ? eur(l.price) : "On ask"}<small>${l.eur_m2 ? eur(l.eur_m2)+" / m²" : "price on request"}</small></div>
+      </div>
+      <p class="d-loc">${ICON.pin}${l.hood || "Prishtinë"}${l.agency ? " · " + l.agency : ""}</p>
+      <div class="dtabs" id="dtabs">
+        <button class="dtab" data-tab="overview" aria-selected="${tab==="overview"}">Overview</button>
+        <button class="dtab" data-tab="value" aria-selected="${tab==="value"}">Value breakdown</button>
+        <button class="dtab" data-tab="details" aria-selected="${tab==="details"}">Details</button>
+      </div>
+      <div class="dpane">${pane}</div>
+      <div class="dbtns">
+        <button class="btn btn-ghost" data-save="${l.id}" aria-pressed="${on}">${on ? "Saved ✓" : "Save to shortlist"}</button>
+        <a class="btn btn-solid" href="${l.url}" target="_blank" rel="noopener">Open the ad ${ICON.ext}</a>
+      </div>
+    </div>
+    <div class="dcard mapcard">
+      <div class="cap"><h4>Where it sits</h4><span>schematic, not to scale</span></div>
+      ${hoodMap(l.hood)}
+    </div>`;
+}
+
+/* ---------- schematic lagje map ---------- */
+/* rough relative geography of the lagje this board covers */
+const ZONES = {
+  "Arbëria":[72,62],"Qafa":[168,52],"Bregu i Diellit":[300,72],"Tophane":[60,136],
+  "Qendër":[186,132],"Ulpiana":[306,160],"Pejton":[118,196],"Dardania":[48,232],
+  "Lakrishte":[208,214],"Mati 1":[300,246],"Prishtina e Re":[150,276],
+};
+function blob(cx, cy, seed){
+  let s = seed, rnd = () => (s = (s*1103515245 + 12345) & 0x7fffffff) / 0x7fffffff;
+  const n = 7, pts = [];
+  for(let i=0;i<n;i++){
+    const a = (i/n)*Math.PI*2, r = 30 + rnd()*16;
+    pts.push([(cx + Math.cos(a)*r).toFixed(1), (cy + Math.sin(a)*r*0.72).toFixed(1)]);
+  }
+  return pts.map(p=>p.join(",")).join(" ");
+}
+function hoodMap(active){
+  const zones = Object.entries(ZONES).map(([name,[x,y]],i) => {
+    const on = name === active;
+    return `<polygon class="zone${on?" on":""}" points="${blob(x,y,i*7919+13)}"/>`;
+  }).join("");
+  const labels = Object.entries(ZONES).map(([name,[x,y]]) => {
+    const on = name === active;
+    return `<text class="zlbl${on?" on":""}" x="${x}" y="${y+3}" text-anchor="middle">${name}</text>`;
+  }).join("");
+  return `<svg class="hoodmap" viewBox="0 0 380 320" role="img" aria-label="Schematic map of Pristina lagje, ${active||"none"} highlighted">
+    <rect width="380" height="320" fill="#f4f6fa"/>
+    <path class="road" d="M12 118 C 90 100, 150 140, 200 130 S 320 108, 372 128"/>
+    <path class="road" d="M186 8 C 176 70, 200 150, 172 250 S 150 300, 156 316"/>
+    ${zones}${labels}
+  </svg>`;
+}
+
+/* ---------- interaction ---------- */
+$("grid").addEventListener("click", e => {
+  if(e.target.closest("#more")){ shown += PAGE; render(false); return; }
+  const sv = e.target.closest("[data-save]");
+  if(sv){
+    e.stopPropagation();
+    const id = sv.dataset.save;
+    saved.has(id) ? saved.delete(id) : saved.add(id);
+    persist(); render(false); return;
+  }
+  const card = e.target.closest(".pcard");
+  if(card){
+    current = L.find(l => l.id === card.dataset.id) || current;
+    tab = "overview";
+    document.querySelectorAll(".pcard").forEach(c => c.setAttribute("aria-current", String(c === card)));
+    renderDetail();
+    if(window.matchMedia("(max-width:1280px)").matches)
+      $("detail").scrollIntoView({behavior:"smooth", block:"start"});
+  }
+});
+$("detail").addEventListener("click", e => {
+  const t = e.target.closest("[data-tab]");
+  if(t){ tab = t.dataset.tab; renderDetail(); return; }
+  const sv = e.target.closest("[data-save]");
+  if(sv){
+    const id = sv.dataset.save;
+    saved.has(id) ? saved.delete(id) : saved.add(id);
+    persist(); render(false);
+  }
+});
+
+render();
+</script>

@@ -1,0 +1,3 @@
+# Private listing board — not for indexing.
+User-agent: *
+Disallow: /

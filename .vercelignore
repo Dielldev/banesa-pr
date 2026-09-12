@@ -1,0 +1,4 @@
+# Only the built page and its photos need to ship
+scraper/
+data/
+artifact.html
