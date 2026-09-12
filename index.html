@@ -82,6 +82,13 @@ svg{display:block}
 .minmax input::placeholder{color:var(--ink3)}
 .minmax span{color:var(--ink3);font-size:12px}
 .pillrow{display:flex;flex-wrap:wrap;gap:7px}
+.datein{display:grid;gap:7px;margin-top:12px}
+.datein label{display:flex;align-items:center;gap:8px;font-size:11.5px;color:var(--ink3)}
+.datein label>span{flex:none;width:30px}
+.datein input{flex:1;min-width:0;padding:7px 8px;border:1px solid var(--line);
+  border-radius:var(--r-sm);background:var(--panel);font-size:12px;color:var(--ink2)}
+.datein input:focus{border-color:var(--blue);color:var(--ink);outline:none}
+.undated{margin-top:11px;padding-top:10px;border-top:1px solid var(--line2)}
 .pill{border:1px solid var(--line);background:var(--panel);border-radius:999px;padding:6px 13px;
   font-size:12.5px;font-weight:600;color:var(--ink2)}
 .pill:hover{border-color:#c9d6ea;color:var(--ink)}
@@ -127,7 +134,12 @@ svg{display:block}
   display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
 .pc-over p{margin:0;font-size:11.5px;opacity:.86;display:flex;align-items:center;gap:4px;
   white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.pc-foot{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:10px 12px}
+.pc-foot{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:10px 12px 6px}
+.pc-date{display:flex;align-items:center;gap:5px;padding:0 12px 10px;font-size:11px;color:var(--ink3);
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.pc-date svg{flex:none}
+.pc-date.fresh{color:var(--green);font-weight:600}
+.pc-date.nodate{color:#b3bcca;font-style:italic}
 .pc-price{font-size:15px;font-weight:800;letter-spacing:-.02em}
 .pc-price small{font-size:11px;font-weight:600;color:var(--ink3);margin-left:3px}
 .pc-score{display:flex;align-items:center;gap:4px;font-size:12px;font-weight:700;color:var(--ink2)}
@@ -152,6 +164,9 @@ svg{display:block}
 .d-price small{display:block;font-size:11.5px;font-weight:600;color:var(--ink3);letter-spacing:0}
 .d-loc{display:flex;align-items:center;gap:5px;color:var(--ink2);font-size:12.5px;margin:7px 0 0}
 .d-loc svg{color:var(--blue);flex:none}
+.d-pub{display:flex;align-items:center;gap:5px;color:var(--ink3);font-size:12px;margin:5px 0 0}
+.d-pub svg{flex:none}
+.d-pub.fresh{color:var(--green);font-weight:600}
 .dtabs{display:flex;gap:20px;border-bottom:1px solid var(--line);margin:14px 0 0}
 .dtab{border:none;background:none;padding:0 0 10px;font-size:13px;font-weight:700;color:var(--ink3);
   border-bottom:2px solid transparent;margin-bottom:-1px}
@@ -247,6 +262,19 @@ svg{display:block}
         <h3>Lagjja</h3><button class="fg-x" data-clear="hoods" aria-label="Clear lagje"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M6 6l12 12M18 6 6 18"/></svg></button>
       </div>
       <div class="opts" id="f-hoods"></div>
+    </div>
+
+    <div class="fg">
+      <div class="fg-head">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M8 3v4M16 3v4M3 10.5h18"/></svg>
+        <h3>Published</h3><button class="fg-x" data-clear="date" aria-label="Clear published date"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M6 6l12 12M18 6 6 18"/></svg></button>
+      </div>
+      <div class="pillrow" id="f-date"></div>
+      <div class="datein">
+        <label><span>From</span><input id="dfrom" type="date" aria-label="Published from"></label>
+        <label><span>To</span><input id="dto" type="date" aria-label="Published to"></label>
+      </div>
+      <label class="opt undated"><input type="checkbox" id="undated"><span class="lbl">Include ads with no date</span><span class="ct" id="n-undated"></span></label>
     </div>
 
     <div class="fg">
@@ -347,6 +375,7 @@ const ICON = {
   floor:'<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 20h16M4 15h16M4 10h16M4 5h16"/></svg>',
   tick:'<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="m5 13 4 4L19 7"/></svg>',
   ext:'<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M14 4h6v6M20 4l-9 9M18 14v5a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h5"/></svg>',
+  cal:'<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M8 3v4M16 3v4M3 10.5h18"/></svg>',
 };
 
 /* sprite cell -> background css (percentage trick keeps the 132:100 cell square to its box) */
@@ -356,13 +385,45 @@ function sprite(sp){
          `background-position:${(sp[1]*100)/(COLS-1)}% ${(sp[2]*100)/(ROWS-1)}%`;
 }
 
+/* ---------- publish dates ----------
+   Windows are measured from the crawl date, not the reader's clock, so
+   "last 7 days" keeps meaning the same 7 days after the page is saved. */
+const DAY = 864e5;
+const CRAWL = new Date(DATA.generated);
+const TODAY = new Date(CRAWL.getFullYear(), CRAWL.getMonth(), CRAWL.getDate());
+const isoOf = d => `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-${String(d.getDate()).padStart(2,"0")}`;
+const daysBack = n => { const d = new Date(TODAY); d.setDate(d.getDate()-n); return isoOf(d); };
+const ts = l => l.date ? Date.parse(l.date + "T00:00:00") : null;
+
+function agoText(iso){
+  const d = Math.round((TODAY - Date.parse(iso + "T00:00:00")) / DAY);
+  if(d <= 0) return "today";
+  if(d === 1) return "yesterday";
+  if(d < 30) return d + " days ago";
+  if(d < 365) return Math.round(d/30) + " months ago";
+  return Math.floor(d/365) === 1 ? "a year ago" : Math.floor(d/365) + " years ago";
+}
+const dateText = iso => new Date(iso + "T00:00:00")
+  .toLocaleDateString("en-GB", {day:"numeric", month:"short", year:"numeric"});
+
+const THIS_YEAR = String(CRAWL.getFullYear());
+const YEARS = [...new Set(L.map(l => l.date && l.date.slice(0,4)).filter(Boolean))].sort().reverse();
+const DATE_PRESETS = [
+  {k:"7",  lab:"Last 7 days",   from:() => daysBack(7)},
+  {k:"30", lab:"Last 30 days",  from:() => daysBack(30)},
+  {k:"90", lab:"Last 3 months", from:() => daysBack(90)},
+  ...YEARS.map(y => ({k:"y"+y, lab: y === THIS_YEAR ? `This year (${y})` : y,
+                      from:() => y+"-01-01", to:() => y+"-12-31"})),
+];
+
 /* ---------- saved shortlist (per browser) ---------- */
 let saved = new Set();
 try { saved = new Set(JSON.parse(localStorage.getItem("banesa.saved") || "[]")); } catch(e){}
 function persist(){ try { localStorage.setItem("banesa.saved", JSON.stringify([...saved])); } catch(e){} }
 
 const state = {view:"all", hoods:new Set(), rooms:new Set(), feats:new Set(), agency:"",
-               band:null, pmin:PMIN, pmax:PMAX, amin:null, amax:null, q:"", sort:"score"};
+               band:null, pmin:PMIN, pmax:PMAX, amin:null, amax:null, q:"", sort:"score",
+               preset:null, dfrom:null, dto:null, undated:false};
 const PAGE = 24;
 let shown = PAGE, current = null, tab = "overview";
 
@@ -394,6 +455,19 @@ $("f-feats").innerHTML = Object.entries(FEATS).map(([k,v]) =>
 [...new Set(L.map(l=>l.agency).filter(Boolean))].sort().forEach(a => {
   const o = document.createElement("option"); o.value = a; o.textContent = a; $("f-agency").appendChild(o);
 });
+
+/* ---------- published-date controls ---------- */
+const inWindow = (l, from, to) => l.date && (!from || l.date >= from) && (!to || l.date <= to);
+$("f-date").innerHTML = DATE_PRESETS.map(p => {
+  const n = L.filter(l => inWindow(l, p.from && p.from(), p.to && p.to())).length;
+  return `<button class="pill" data-preset="${p.k}" aria-pressed="false" title="${n} listings">${p.lab}<span class="ct" style="margin-left:5px;opacity:.7">${n}</span></button>`;
+}).join("");
+
+const DATED = L.map(l => l.date).filter(Boolean).sort();
+if(DATED.length){
+  ["dfrom","dto"].forEach(id => { $(id).min = DATED[0]; $(id).max = DATED[DATED.length-1]; });
+}
+$("n-undated").textContent = L.filter(l => !l.date).length;
 
 /* ---------- price slider ---------- */
 const pct = v => ((v - PMIN) / (PMAX - PMIN)) * 100;
@@ -441,6 +515,30 @@ $("f-feats").addEventListener("click", e => {
   on ? state.feats.delete(k) : state.feats.add(k);
   render();
 });
+$("f-date").addEventListener("click", e => {
+  const b = e.target.closest("[data-preset]"); if(!b) return;
+  const on = b.getAttribute("aria-pressed") === "true";
+  const p = DATE_PRESETS.find(x => x.k === b.dataset.preset);
+  state.preset = on ? null : p.k;
+  state.dfrom = on ? null : (p.from ? p.from() : null);
+  state.dto   = on ? null : (p.to   ? p.to()   : null);
+  syncDate(); render();
+});
+["dfrom","dto"].forEach(id => $(id).addEventListener("change", () => {
+  state[id] = $(id).value || null;
+  state.preset = null;                       /* a hand-picked range is its own thing */
+  syncDate(); render();
+}));
+$("undated").addEventListener("change", e => { state.undated = e.target.checked; render(); });
+
+/* keep pills, inputs and state showing the same window */
+function syncDate(){
+  document.querySelectorAll("#f-date .pill").forEach(b =>
+    b.setAttribute("aria-pressed", String(b.dataset.preset === state.preset)));
+  $("dfrom").value = state.dfrom || "";
+  $("dto").value = state.dto || "";
+}
+
 $("f-agency").addEventListener("change", e => { state.agency = e.target.value; render(); });
 $("sort").addEventListener("change", e => { state.sort = e.target.value; render(); });
 ["amin","amax"].forEach(id => $(id).addEventListener("input", () => {
@@ -466,6 +564,11 @@ document.querySelectorAll("[data-clear]").forEach(btn => btn.addEventListener("c
   if(g === "rooms"){ state.rooms.clear(); document.querySelectorAll("#f-rooms input").forEach(i=>i.checked=false); }
   if(g === "feats"){ state.feats.clear(); document.querySelectorAll("#f-feats .pill").forEach(p=>p.setAttribute("aria-pressed","false")); }
   if(g === "agency"){ state.agency = ""; $("f-agency").value = ""; }
+  if(g === "date"){
+    state.preset = state.dfrom = state.dto = null;
+    state.undated = false; $("undated").checked = false;
+    syncDate();
+  }
   if(g === "area"){ state.amin = state.amax = null; $("amin").value = $("amax").value = ""; }
   if(g === "price"){
     state.band = null; state.pmin = PMIN; state.pmax = PMAX;
@@ -489,7 +592,7 @@ const SORTS = {
   price:(a,b)=>(a.price ?? 1e9)-(b.price ?? 1e9),
   priced:(a,b)=>(b.price ?? -1)-(a.price ?? -1),
   area:(a,b)=>(b.area ?? -1)-(a.area ?? -1),
-  new:(a,b)=>(a.days_old ?? 1e9)-(b.days_old ?? 1e9),
+  new:(a,b)=>(ts(b) ?? -1)-(ts(a) ?? -1),
 };
 
 function passes(l){
@@ -508,6 +611,11 @@ function passes(l){
   } else if(state.pmin > PMIN || state.pmax < PMAX){
     if(l.price == null || l.price < state.pmin || l.price > state.pmax) return false;
   }
+  if(state.dfrom || state.dto){
+    if(!l.date) return state.undated;        /* ad never stated when it went up */
+    if(state.dfrom && l.date < state.dfrom) return false;
+    if(state.dto && l.date > state.dto) return false;
+  }
   if(state.amin != null && (l.area == null || l.area < state.amin)) return false;
   if(state.amax != null && (l.area == null || l.area > state.amax)) return false;
   if(state.q){
@@ -518,6 +626,13 @@ function passes(l){
 }
 
 /* ---------- cards ---------- */
+/* one published line, used by both the card and the detail header */
+function pubLine(l, cls){
+  if(!l.date) return `<div class="${cls} nodate">${ICON.cal}Publication date not stated</div>`;
+  const ago = agoText(l.date), fresh = /today|yesterday|^[1-7] days/.test(ago);
+  return `<div class="${cls}${fresh ? " fresh" : ""}">${ICON.cal}Published ${dateText(l.date)} · ${ago}</div>`;
+}
+
 function cardHTML(l){
   const on = saved.has(l.id);
   return `<article class="pcard" data-id="${l.id}" aria-current="${current && current.id===l.id}">
@@ -533,6 +648,7 @@ function cardHTML(l){
       <div class="pc-price">${l.price ? eur(l.price) : "On ask"}<small>${l.eur_m2 ? eur(l.eur_m2)+"/m²" : ""}</small></div>
       <div class="pc-score">${l.score!=null ? ICON.star + l.score : ""}</div>
     </div>
+    ${pubLine(l, "pc-date")}
   </article>`;
 }
 
@@ -543,8 +659,13 @@ function render(reset=true){
 
   const priced = out.filter(l=>l.eur_m2).map(l=>l.eur_m2).sort((a,b)=>a-b);
   const med = priced.length ? priced[Math.floor(priced.length/2)] : null;
+  const win = state.dfrom || state.dto
+    ? ` · published ${state.dfrom ? dateText(state.dfrom) : "any time"}` +
+      ` – ${state.dto ? dateText(state.dto) : dateText(isoOf(TODAY))}` +
+      (state.undated ? ", undated ads included" : "")
+    : "";
   $("count").innerHTML = `<b>${out.length.toLocaleString("en-US")}</b> ${out.length===1?"listing":"listings"}`
-    + (med ? ` · median <b>${eur(med)}</b>/m² in this selection` : "");
+    + (med ? ` · median <b>${eur(med)}</b>/m² in this selection` : "") + win;
 
   if(!out.length){
     $("grid").innerHTML = `<div class="empty">${state.view==="saved"
@@ -601,7 +722,7 @@ function detailsPane(l){
     ["Asking price", l.price ? (l.price_derived ? "~"+eur(l.price)+" (from €/m²)" : eur(l.price)) : "On ask"],
     ["Price per m²", l.eur_m2 ? eur(l.eur_m2) : "—"],
     ["Surface", l.area ? l.area + " m²" + (l.area_uncertain ? " · ambiguous in the ad" : "") : "not stated"],
-    ["Listed", l.days_old == null ? "—" : l.days_old===0 ? "today" : l.days_old===1 ? "yesterday" : l.days_old + " days ago"],
+    ["Published", l.date ? dateText(l.date) + " · " + agoText(l.date) : "not stated in the ad"],
     ["Value score", l.score != null ? l.score + " / 100" : "not scored"],
   ];
   return `<dl style="margin:0">${rows.map(([k,v]) => `<div class="kv"><dt>${k}</dt><dd>${v}</dd></div>`).join("")}</dl>`;
@@ -625,6 +746,7 @@ function renderDetail(){
         <div class="d-price">${l.price ? eur(l.price) : "On ask"}<small>${l.eur_m2 ? eur(l.eur_m2)+" / m²" : "price on request"}</small></div>
       </div>
       <p class="d-loc">${ICON.pin}${l.hood || "Prishtinë"}${l.agency ? " · " + l.agency : ""}</p>
+      ${pubLine(l, "d-pub")}
       <div class="dtabs" id="dtabs">
         <button class="dtab" data-tab="overview" aria-selected="${tab==="overview"}">Overview</button>
         <button class="dtab" data-tab="value" aria-selected="${tab==="value"}">Value breakdown</button>
@@ -706,6 +828,7 @@ $("detail").addEventListener("click", e => {
   }
 });
 
+syncDate();
 render();
 </script>
 
