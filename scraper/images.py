@@ -18,7 +18,7 @@ import common
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 DATA = os.path.join(ROOT, "data")
-SPRITES = os.path.join(ROOT, "sprites")
+SPRITES = os.path.join(ROOT, "public", "sprites")
 CACHE = os.environ.get("IMG_CACHE", "/tmp/banesa-img-cache")
 
 CELL_W, CELL_H = 198, 150          # 1.5x the 132x100 card slot

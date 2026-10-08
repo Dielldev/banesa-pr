@@ -1,4 +1,5 @@
-# Only the built page and its photos need to ship
-scraper/
-data/
-artifact.html
+# The app is built on Vercel from src/ + public/; the scraper and raw data stay local
+/scraper/
+/data/
+/node_modules/
+/dist/

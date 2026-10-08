@@ -9,3 +9,6 @@ __pycache__/
 # Tooling
 .vercel
 .DS_Store
+node_modules/
+dist/
+*.tsbuildinfo
