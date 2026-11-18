@@ -181,6 +181,35 @@ class Ingest(unittest.TestCase):
         self.assertEqual(rep["failed"], 1)
 
 
+class Budget(unittest.TestCase):
+    def ctx(self, minutes):
+        return update.Ctx(storemod.empty(), False, [], minutes, False)
+
+    def test_no_budget_means_no_deadline(self):
+        c = self.ctx(0)
+        c.allot(["anem", "merrjep"])
+        self.assertFalse(c.expired())
+
+    def test_merrjep_cannot_take_the_whole_budget(self):
+        import time
+        c = self.ctx(45)
+        order = sorted(update.QUICK_SOURCES, key=update.RUN_ORDER.index)
+        self.assertEqual(order[-1], "merrjep")
+        c.allot(order)
+        first = c.deadline - time.time()
+        self.assertLess(first, 45 * 60 * 0.25)         # a small site gets a small slice
+        c.allot(["merrjep"])                            # last one inherits everything left
+        self.assertGreater(c.deadline - time.time(), 40 * 60)
+
+    def test_slice_of_a_stalled_source_does_not_leak_into_the_next(self):
+        import time
+        c = self.ctx(10)
+        c.allot(["anem", "inrealestate", "merrjep"])
+        c.budget_end = time.time() - 1                  # budget gone entirely
+        c.allot(["inrealestate", "merrjep"])
+        self.assertTrue(c.expired())
+
+
 class Prune(unittest.TestCase):
     def days_ago(self, n):
         return (datetime.date.today() - datetime.timedelta(days=n)).isoformat()

@@ -62,6 +62,11 @@ error-free* full sweep hasn't seen them for 21 days (10 for the agency sites), a
 source at once (`--force-prune` overrides after you've checked). `--budget MIN` stops cleanly so an interrupted
 catch-up resumes next time. A run that finds nothing writes no files.
 
+**No source can starve another.** Each source gets its own slice of `--budget`: the cheap, independent agency
+sites (Anem, IN, prishtina.io) run first with a small slice each, and MerrJep — slow, and the only one that throttles
+(HTTP 503) — runs last and takes whatever time is left, so a throttled or blocked MerrJep can't stop the agency
+sites from updating (and vice-versa). A crashing source is reported and skipped; the others still run and publish.
+
 Other flags: `--only merrjep,prishtina_io`, `--pages N`, `--rebuild` (re-score from the store, offline),
 `--forget-skipped` (re-judge rejected ads after you change `hoods.py`).
 

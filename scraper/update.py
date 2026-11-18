@@ -46,7 +46,12 @@ import storefront
 SOURCES = ("merrjep", "storefronts", "prishtina_io", "anem", "inrealestate")
 QUICK_SOURCES = ("merrjep", "prishtina_io", "anem", "inrealestate")   # storefronts are not date-ordered
 
-MJ_DEPTH = 150            # list pages ≈ two months of ads
+# Relative share of the time budget. Cheap, independent sites go first with a small slice each;
+# MerrJep (hundreds of ad pages, throttled) runs last and takes whatever is left over.
+WEIGHT = {"prishtina_io": 2, "anem": 1, "inrealestate": 1, "storefronts": 2, "merrjep": 4}
+RUN_ORDER = ("anem", "inrealestate", "prishtina_io", "storefronts", "merrjep")
+
+MJ_DEPTH = 150           # list pages ≈ two months of ads
 MJ_BATCH = 3              # pages fetched together; two quiet batches in a row ends a quick crawl
 SITE_QUIET_PAGES = 2
 GRACE_DAYS = {"mj": 21, "pio": 10, "ane": 10, "inr": 10}
@@ -70,10 +75,23 @@ class Ctx:
         self.swept = set()         # id-prefix groups that had a complete sweep this run
         self.report = {}
         self.deferred = 0          # fetches skipped because the --budget ran out
-        self.deadline = time.time() + budget_min * 60 if budget_min else None
+        self.budget_end = time.time() + budget_min * 60 if budget_min else None
+        self.deadline = self.budget_end      # the running source's own cut-off (see allot())
 
     def expired(self):
         return self.deadline is not None and time.time() > self.deadline
+
+    def allot(self, left):
+        """Give the next source a slice of what remains of --budget, in proportion to its weight
+        (`left` = the sources still to run, itself included). Time a quick source doesn't use
+        rolls over to the later ones, so MerrJep — slow and throttled — can never use up the
+        minutes the other sites need, and a stalled site can't eat MerrJep's."""
+        if self.budget_end is None:
+            return
+        now = time.time()
+        total = sum(WEIGHT.get(s, 1) for s in left)
+        share = max(0.0, self.budget_end - now) * WEIGHT.get(left[0], 1) / total
+        self.deadline = now + share
 
 
 def log(msg):
@@ -474,7 +492,9 @@ def run(argv=None):
     }
     group_of = {"merrjep": "mj", "storefronts": "mj", "prishtina_io": "pio", "anem": "ane", "inrealestate": "inr"}
     group_ok = {}
-    for name in only:
+    only.sort(key=RUN_ORDER.index)               # cheap sites first, MerrJep last (see WEIGHT)
+    for n, name in enumerate(only):
+        ctx.allot(only[n:])
         rep = ctx.report[name] = {"state": "running"}
         t0, deferred0 = time.time(), ctx.deferred
         log(f"▶ {name}")
