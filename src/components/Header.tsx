@@ -4,7 +4,7 @@ import { useDismiss } from "../lib/hooks";
 import { shortAgo } from "../lib/dates";
 import { Avatar } from "./Avatar";
 import { priceText } from "./ListingCard";
-import { IconBell, IconBuilding, IconChevron, IconHeart, IconShare, IconStar, LogoMark } from "./Icons";
+import { IconBell, IconBuilding, IconChevron, IconHeart, IconRefresh, IconShare, IconStar, LogoMark } from "./Icons";
 
 interface Props {
   segment: SegmentKey;
@@ -13,6 +13,9 @@ interface Props {
   onShare: () => void;
   newest: { listing: Listing; days: number }[];
   asOf: string;
+  updatedText: string;
+  updating: boolean;
+  onOpenUpdate: () => void;
   total: number;
   savedCount: number;
   onOpen: (id: string) => void;
@@ -26,7 +29,7 @@ const SEGMENTS: { key: SegmentKey; label: string; icon: typeof IconBuilding }[] 
   { key: "saved", label: "Saved", icon: IconHeart },
 ];
 
-export function Header({ segment, counts, onSegment, onShare, newest, asOf, total, savedCount, onOpen, onShowSaved, onClearSaved }: Props) {
+export function Header({ segment, counts, onSegment, onShare, newest, asOf, updatedText, updating, onOpenUpdate, total, savedCount, onOpen, onShowSaved, onClearSaved }: Props) {
   const [bell, setBell] = useState(false);
   const [user, setUser] = useState(false);
   const closeBell = useCallback(() => setBell(false), []);
@@ -52,6 +55,16 @@ export function Header({ segment, counts, onSegment, onShare, newest, asOf, tota
       </nav>
 
       <div className="header-right">
+        <button
+          className={`update-btn${updating ? " is-busy" : ""}`}
+          onClick={onOpenUpdate}
+          aria-label={updating ? "Looking for new listings" : "Check for new listings"}
+          title="Check for new listings"
+        >
+          <IconRefresh size={19} />
+          <span>{updating ? "Updating" : "Update"}</span>
+        </button>
+
         <button className="outline-btn" onClick={onShare} aria-label="Copy a link to this view" title="Copy a link to this view">
           <IconShare size={19} />
         </button>
@@ -122,7 +135,7 @@ export function Header({ segment, counts, onSegment, onShare, newest, asOf, tota
                 </button>
               </li>
               <li className="muted pad" role="none">
-                {total.toLocaleString("en-US")} listings · crawled {asOf}
+                {total.toLocaleString("en-US")} listings · updated {updatedText}
               </li>
             </ul>
           )}

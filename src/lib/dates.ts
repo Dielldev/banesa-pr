@@ -60,5 +60,20 @@ export function datePresets(listings: Listing[], clock: Clock): DatePreset[] {
   ];
 }
 
+/** Seen by the scraper in the last two days, and not an old ad that was merely re-posted. */
+export function isFresh(l: Listing, clock: Clock): boolean {
+  if (!l.first_seen || clock.daysSince(l.first_seen) > 2) return false;
+  return !l.date || clock.daysSince(l.date) <= 4;
+}
+
+export function updatedAgo(iso: string, now = Date.now()): string {
+  const mins = Math.max(0, Math.round((now - Date.parse(iso)) / 6e4));
+  if (mins < 2) return "just now";
+  if (mins < 60) return `${mins} min ago`;
+  const hrs = Math.round(mins / 60);
+  if (hrs < 24) return `${hrs}h ago`;
+  return agoText(Math.round(hrs / 24));
+}
+
 export const generatedLabel = (d: Dataset): string =>
   new Date(d.generated).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" });

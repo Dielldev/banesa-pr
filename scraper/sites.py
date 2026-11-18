@@ -68,18 +68,19 @@ def parse_property(url, agency, prop_rx, delay=0.0):
     desc = common.text(_html.unescape(g["desc"]))
     blob = f"{title} {desc}"
 
+    mid = prop_rx.search(url)
+    rid = f"{re.sub(r'[^a-z]', '', agency.lower())[:3]}-{mid.group(1) if mid else abs(hash(url))}"
     if RENT_RX.search(blob):
-        return None
+        return {"id": rid, "skip": True}      # fetched fine, just not for sale
 
     prices = [common.parse_price(x) for x in PRICE_RX.findall(h)]
     prices = [p for p in prices if p]
     price = max(prices) if prices else None
 
     hood, tier = hoods.detect(title, desc)
-    mid = prop_rx.search(url)
     low = blob.lower()
     return {
-        "id": f"{re.sub(r'[^a-z]', '', agency.lower())[:3]}-{mid.group(1) if mid else abs(hash(url))}",
+        "id": rid,
         "source": agency,
         "url": url,
         "title": title,
@@ -125,7 +126,8 @@ def main():
         print(f"  {agency:22} {len(urls)} property pages", flush=True)
         with ThreadPoolExecutor(max_workers=cfg.get("workers", 6)) as ex:
             rows = [r for r in ex.map(
-                lambda u: parse_property(u, agency, cfg["prop"], cfg.get("delay", 0)), urls) if r]
+                lambda u: parse_property(u, agency, cfg["prop"], cfg.get("delay", 0)), urls)
+                    if r and not r.get("skip")]
         inscope = [r for r in rows if r["tier"] in ("core", "nearby")]
         print(f"  {'':22} {len(rows)} for sale -> {len(inscope)} in scope", flush=True)
 

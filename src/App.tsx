@@ -1,8 +1,10 @@
 import { useCallback, useDeferredValue, useEffect, useMemo, useRef, useState } from "react";
 import type { Dataset, Filters, Listing, SegmentKey } from "./types";
-import { useDataset } from "./data";
+import { useDataset, type CheckResult } from "./data";
+import { useUpdater } from "./lib/updater";
+import { UpdateSheet } from "./components/UpdateSheet";
 import { activeCount, applyFilters, DEFAULT_FILTERS, FEATURE_LABELS, fromParams, median, toParams } from "./lib/filters";
-import { datePresets, generatedLabel, makeClock, type Clock } from "./lib/dates";
+import { datePresets, generatedLabel, isFresh, makeClock, updatedAgo, type Clock } from "./lib/dates";
 import { placeListings } from "./lib/geo";
 import { eur } from "./lib/format";
 import { useMedia, useStoredSet } from "./lib/hooks";
@@ -24,7 +26,7 @@ function initialFilters(): Filters {
 }
 
 export function App() {
-  const { data, error } = useDataset();
+  const { data, error, checkNow } = useDataset();
   if (error) {
     return (
       <div className="state">
@@ -37,7 +39,7 @@ export function App() {
     );
   }
   if (!data) return <Skeleton />;
-  return <Board data={data} />;
+  return <Board data={data} checkNow={checkNow} />;
 }
 
 function Skeleton() {
@@ -53,7 +55,7 @@ function Skeleton() {
   );
 }
 
-function Board({ data }: { data: Dataset }) {
+function Board({ data, checkNow }: { data: Dataset; checkNow: () => Promise<CheckResult> }) {
   const all = data.listings;
   const clock = useMemo<Clock>(() => makeClock(data.generated), [data.generated]);
   const byId = useMemo(() => new Map(all.map((l) => [l.id, l])), [all]);
@@ -69,6 +71,9 @@ function Board({ data }: { data: Dataset }) {
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [hoveredId, setHoveredId] = useState<string | null>(null);
   const [toast, setToast] = useState<string | null>(null);
+  const [updateOpen, setUpdateOpen] = useState(false);
+  const { state: upd, start: startUpdate } = useUpdater(checkNow);
+  const updating = upd.phase === "checking" || upd.phase === "running" || upd.phase === "publishing";
   const [visible, setVisible] = useState(PAGE);
   const listRef = useRef<HTMLElement>(null);
   const sentinel = useRef<HTMLDivElement>(null);
@@ -103,6 +108,18 @@ function Board({ data }: { data: Dataset }) {
   );
 
   const asOf = generatedLabel(data);
+  const updatedText = updatedAgo(data.updated ?? data.generated);
+  const freshIds = useMemo(() => new Set(all.filter((l) => isFresh(l, clock)).map((l) => l.id)), [all, clock]);
+
+  // when a background refresh swaps in newer data, say how many listings are actually new
+  const knownIds = useRef<Set<string> | null>(null);
+  useEffect(() => {
+    const prev = knownIds.current;
+    knownIds.current = new Set(all.map((l) => l.id));
+    if (!prev) return;
+    const added = all.reduce((n, l) => n + (prev.has(l.id) ? 0 : 1), 0);
+    if (added > 0) setToast(`${added} new ${added === 1 ? "listing" : "listings"} added`);
+  }, [all]);
   const newest = useMemo(
     () =>
       all
@@ -112,6 +129,14 @@ function Board({ data }: { data: Dataset }) {
         .map((l) => ({ listing: l, days: clock.daysSince(l.date!) })),
     [all, clock],
   );
+
+  // tell the user how a background update ended, even if they closed the sheet
+  useEffect(() => {
+    if (!upd.finishedAt) return;
+    if (upd.outcome === "same") setToast("You're up to date. Nothing new right now");
+    else if (upd.outcome === "error" && upd.message) setToast(upd.message);
+    else if (upd.outcome === "new") setToast((t) => t ?? "Found new listings");
+  }, [upd.finishedAt, upd.outcome, upd.message]);
 
   const daysOld = useCallback((l: Listing) => (l.date ? clock.daysSince(l.date) : null), [clock]);
 
@@ -222,6 +247,9 @@ function Board({ data }: { data: Dataset }) {
         onShare={share}
         newest={newest}
         asOf={asOf}
+        updatedText={updatedText}
+        updating={updating}
+        onOpenUpdate={() => setUpdateOpen(true)}
         total={all.length}
         savedCount={saved.size}
         onOpen={onOpen}
@@ -250,6 +278,7 @@ function Board({ data }: { data: Dataset }) {
             <p className="count" aria-live="polite">
               {results.length.toLocaleString("en-US")} {results.length === 1 ? "home" : "homes"} found
               {med != null && <span className="count-med"> · median {eur(med)}/m²</span>}
+              <span className="count-upd">Updated {updatedText}</span>
             </p>
           </div>
           <SortMenu value={filters.sort} onChange={(sort) => patch({ sort })} />
@@ -296,6 +325,7 @@ function Board({ data }: { data: Dataset }) {
                       saved={saved.has(l.id)}
                       active={l.id === selectedId}
                       daysOld={daysOld(l)}
+                      isNew={freshIds.has(l.id)}
                       onOpen={onOpen}
                       onToggleSave={toggleSaved}
                       onShowOnMap={onShowOnMap}
@@ -340,6 +370,16 @@ function Board({ data }: { data: Dataset }) {
           )}
         </div>
       </main>
+
+      {updateOpen && (
+        <UpdateSheet
+          state={upd}
+          updatedText={updatedText}
+          total={all.length}
+          onStart={() => void startUpdate()}
+          onClose={() => setUpdateOpen(false)}
+        />
+      )}
 
       {filtersOpen && (
         <FilterSheet

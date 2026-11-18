@@ -59,6 +59,14 @@ export const IconShare = (p: P) => (
     <path d="M5 12v6.5A1.5 1.5 0 0 0 6.5 20h11a1.5 1.5 0 0 0 1.5-1.5V12" />
   </Svg>
 );
+export const IconRefresh = (p: P) => (
+  <Svg {...p}>
+    <path d="M20 11a8 8 0 0 0-14.3-4.6L4 8.5" />
+    <path d="M4 4v4.5h4.5" />
+    <path d="M4 13a8 8 0 0 0 14.3 4.6L20 15.5" />
+    <path d="M20 20v-4.5h-4.5" />
+  </Svg>
+);
 export const IconBell = (p: P) => (
   <Svg {...p}>
     <path d="M6 16.5V11a6 6 0 1 1 12 0v5.5l1.5 2h-15Z" />

@@ -36,7 +36,7 @@ export function Toolbar({ tier, onTier, query, onQuery, filterCount, onOpenFilte
           <input
             type="search"
             value={query}
-            placeholder="Search lagje, agency, keyword…"
+            placeholder="Search lagje or keyword"
             aria-label="Search listings"
             autoComplete="off"
             onChange={(e) => onQuery(e.target.value)}

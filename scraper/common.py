@@ -22,7 +22,7 @@ _last = [0.0]
 _lock = threading.Lock()
 
 
-def fetch(url, tries=3, timeout=30):
+def fetch(url, tries=6, timeout=30):
     """GET a URL, returning decoded text or None. Polite: capped concurrency + jitter."""
     for attempt in range(tries):
         with _throttle:
@@ -43,10 +43,17 @@ def fetch(url, tries=3, timeout=30):
                     if r.headers.get("Content-Encoding") == "gzip":
                         raw = gzip.GzipFile(fileobj=io.BytesIO(raw)).read()
                     return raw.decode("utf-8", "replace")
-            except (urllib.error.URLError, urllib.error.HTTPError, OSError, TimeoutError):
+            except (urllib.error.URLError, urllib.error.HTTPError, OSError, TimeoutError) as e:
                 if attempt == tries - 1:
                     return None
-                time.sleep(1.5 * (attempt + 1) + random.random())
+                wait = 1.5 * (attempt + 1)
+                if isinstance(e, urllib.error.HTTPError) and e.code == 503:
+                    # MerrJep's edge sheds load intermittently; honour its Retry-After
+                    try:
+                        wait = max(wait, min(45, float(e.headers.get("Retry-After", 0))))
+                    except (TypeError, ValueError):
+                        pass
+                time.sleep(wait + random.random())
     return None
 
 

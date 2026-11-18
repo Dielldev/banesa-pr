@@ -1,6 +1,9 @@
 # Raw scrape intermediates — regenerate with scraper/run.py + storefront.py + sites.py
 data/raw_*.json
 data/merrjep_stubs.json
+# derived from data/store.json on every update
+data/listings.json
+data/store.json.tmp
 
 # Python
 __pycache__/

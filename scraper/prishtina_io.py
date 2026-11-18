@@ -41,28 +41,31 @@ def meta(h, prop):
 
 def parse(url):
     time.sleep(DELAY)
+    pid = re.search(r'/properties/(\d+)', url)
+    rid = "pio-" + (pid.group(1) if pid else str(abs(hash(url))))
+    skip = {"id": rid, "skip": True}      # fetched fine, just not a listing we want
     h = common.fetch(url)
     if not h:
-        return None
+        return None                       # fetch failed: try again next time
     i = h.find("surface_m2")
     if i < 0:
-        return None
+        return skip
     seg = h[max(0, i - 3000):i + 3000]
 
     cat = re.search(r'\\"category\\":\s*\[\\"([a-z_]+)\\"', seg)
     if not cat or cat.group(1) not in ("apartment", "penthouse"):
-        return None
+        return skip
 
     price = num(seg, "sell_price")
     if not price:                      # rent-only record
-        return None
+        return skip
     area = num(seg, "surface_m2")
 
     title = meta(h, "og:title") or txt(seg, "search_title_en") or txt(seg, "search_title")
     desc = common.text(meta(h, "og:description"))
     city, street, addr = txt(seg, "city"), txt(seg, "street"), txt(seg, "address_description")
     if city and "prishtin" not in city.lower():
-        return None
+        return skip
 
     hood, tier = hoods.detect(title, street, addr, desc)
     low = f"{title} {desc} {addr}".lower()
@@ -75,9 +78,8 @@ def parse(url):
     if year and year >= 2018:
         feats.add("new_build")
 
-    pid = re.search(r'/properties/(\d+)', url)
     return {
-        "id": "pio-" + (pid.group(1) if pid else str(abs(hash(url)))),
+        "id": rid,
         "source": AGENCY,
         "url": url,
         "title": title,
@@ -109,7 +111,7 @@ def main():
     rows = []
     with ThreadPoolExecutor(max_workers=WORKERS) as ex:
         for i, r in enumerate(ex.map(parse, urls), 1):
-            if r:
+            if r and not r.get("skip"):
                 rows.append(r)
             if i % 500 == 0:
                 print(f"    {i}/{len(urls)} -> {len(rows)} apartments for sale", flush=True)

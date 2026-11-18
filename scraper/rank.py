@@ -83,7 +83,8 @@ def score_all(rows, today=None):
         if r["eur_m2"] and not (SANE_EUR_M2[0] <= r["eur_m2"] <= SANE_EUR_M2[1]):
             r["eur_m2"] = None
             r["suspect_price"] = True
-        r["date"] = common.parse_posted(r.get("posted", ""), today)
+        # a date frozen at scrape time wins: "Dje 13:02" is only meaningful on the crawl day
+        r["date"] = r.get("date") or common.parse_posted(r.get("posted", ""), today)
         r["agency"] = (r.get("priority_agency") or r.get("agency_name")
                        or agency_name(r.get("agency_slug")))
 
@@ -145,8 +146,8 @@ def score_all(rows, today=None):
     return rows, {"hood_median": hood_med, "hood_count": hood_n, "overall_median": overall}
 
 
-def main():
-    raw = json.load(open(os.path.join(DATA, "raw_all.json")))
+def in_scope(raw):
+    """Rows that belong on the board: sale ads in the focus lagje, de-duplicated."""
     rows = []
     for r in raw:
         if r.get("is_rental") or r.get("tier") not in ("core", "nearby"):
@@ -165,9 +166,14 @@ def main():
             continue
         seen.add(k)
         uniq.append(r)
+    return uniq
 
-    ranked, stats = score_all(uniq)
-    out = {
+
+def build(raw, today=None):
+    """Score and rank raw rows into the dataset dict. Works on copies, so callers
+    can pass rows they want to keep pristine."""
+    ranked, stats = score_all([dict(r) for r in in_scope(raw)], today)
+    return {
         "generated": datetime.datetime.now().isoformat(timespec="seconds"),
         "source": "MerrJep + agency sites",
         "stats": {
@@ -183,8 +189,13 @@ def main():
         },
         "listings": ranked,
     }
+
+
+def main():
+    raw = json.load(open(os.path.join(DATA, "raw_all.json")))
+    out = build(raw)
     json.dump(out, open(os.path.join(DATA, "listings.json"), "w"), ensure_ascii=False)
-    print(f"ranked {len(ranked)} listings -> data/listings.json")
+    print(f"ranked {len(out['listings'])} listings -> data/listings.json")
     print("medians:", out["stats"]["hood_median"])
 
 

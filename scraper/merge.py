@@ -31,6 +31,39 @@ def load(name):
     return json.load(open(p)) if os.path.exists(p) else []
 
 
+def fill_gaps(cur, r):
+    """Copy fields from r into cur wherever cur has nothing; never overwrite."""
+    for k, v in r.items():
+        if cur.get(k) in (None, "", []) and v not in (None, "", []):
+            cur[k] = v
+
+
+def apply_priority(rows):
+    """Tag rows from the agencies this search prioritises; detect a hood where missing."""
+    for r in rows:
+        slug = r.get("agency_slug")
+        name = PRIORITY.get(slug) or (r.get("agency_name") if r.get("agency_name") in PRIORITY_SITES else None)
+        r["priority_agency"] = name
+        r["is_priority"] = bool(name)
+        if not r.get("hood"):
+            r["hood"], r["tier"] = hoods.detect(r.get("title"), r.get("description"))
+    return rows
+
+
+def dedupe_cross_listed(pool):
+    """A flat listed on both MerrJep and the agency's own site: same money, same size."""
+    seen, uniq = set(), []
+    for r in pool:
+        p, a = r.get("price"), r.get("area")
+        key = (round(p), round(a), r.get("hood")) if (p and a) else None
+        if key and key in seen:
+            continue
+        if key:
+            seen.add(key)
+        uniq.append(r)
+    return uniq
+
+
 def main():
     pool, by_id = [], {}
 
@@ -42,32 +75,13 @@ def main():
             if not rid:
                 continue
             if rid in by_id:
-                cur = by_id[rid]
-                for k, v in r.items():          # fill gaps without overwriting
-                    if cur.get(k) in (None, "", []) and v not in (None, "", []):
-                        cur[k] = v
+                fill_gaps(by_id[rid], r)
                 continue
             by_id[rid] = r
             pool.append(r)
 
-    for r in pool:
-        slug = r.get("agency_slug")
-        name = PRIORITY.get(slug) or (r.get("agency_name") if r.get("agency_name") in PRIORITY_SITES else None)
-        r["priority_agency"] = name
-        r["is_priority"] = bool(name)
-        if not r.get("hood"):
-            r["hood"], r["tier"] = hoods.detect(r.get("title"), r.get("description"))
-
-    # a flat listed on both MerrJep and the agency's own site: same money, same size
-    seen, uniq = set(), []
-    for r in pool:
-        p, a = r.get("price"), r.get("area")
-        key = (round(p), round(a), r.get("hood")) if (p and a) else None
-        if key and key in seen:
-            continue
-        if key:
-            seen.add(key)
-        uniq.append(r)
+    apply_priority(pool)
+    uniq = dedupe_cross_listed(pool)
 
     json.dump(uniq, open(os.path.join(DATA, "raw_all.json"), "w"), ensure_ascii=False)
     prio = sum(1 for r in uniq if r["is_priority"])

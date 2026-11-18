@@ -738,6 +738,29 @@ svg {
   font-weight: 500;
   color: var(--ink-2);
 }
+.tag-new {
+  margin-left: 2px;
+  padding: 1px 7px;
+  border-radius: 999px;
+  background: var(--accent);
+  color: #fff;
+  font-size: 10.5px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+.chip-drop {
+  display: inline-flex;
+  align-items: center;
+  height: 22px;
+  padding: 0 8px;
+  border-radius: 999px;
+  background: #fff1e6;
+  color: #b4540a;
+  font-size: 11.5px;
+  font-weight: 600;
+  white-space: nowrap;
+}
 .status i {
   width: 7px;
   height: 7px;
@@ -1961,6 +1984,214 @@ input[type="checkbox"]:checked::after {
   .drawer-price small {
     display: inline;
     margin-right: 8px;
+  }
+}
+
+/* ───────── update button + sheet ───────── */
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+.update-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  height: 44px;
+  padding: 0 18px 0 14px;
+  border-radius: 999px;
+  background: var(--accent);
+  color: #fff;
+  font-size: 14px;
+  font-weight: 600;
+  transition: background 0.15s;
+}
+.update-btn:hover {
+  background: var(--accent-ink);
+}
+.update-btn.is-busy svg {
+  animation: spin 1s linear infinite;
+}
+.update-sheet {
+  width: min(420px, 100%);
+}
+.update-body {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  padding: 32px 28px 26px;
+  text-align: center;
+}
+.update-icon {
+  display: grid;
+  place-items: center;
+  width: 72px;
+  height: 72px;
+  margin-bottom: 6px;
+  border-radius: 50%;
+  background: var(--accent-soft);
+  color: var(--accent);
+}
+.update-icon.spin svg {
+  animation: spin 1.1s linear infinite;
+}
+.update-icon.new,
+.update-icon.same {
+  background: var(--good-soft);
+  color: var(--good);
+}
+.update-icon.error {
+  background: #fff1e6;
+  color: #b4540a;
+}
+.update-title {
+  font-size: 21px;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  line-height: 1.25;
+}
+.update-sub {
+  max-width: 34ch;
+  font-size: 15px;
+  line-height: 1.5;
+  color: var(--ink-2);
+}
+.update-foot .btn-primary,
+.update-foot .btn-outline {
+  flex: 1;
+  max-width: none;
+}
+.btn-primary:disabled {
+  opacity: 0.7;
+  cursor: progress;
+}
+.count-upd {
+  display: block;
+  color: var(--muted);
+}
+.btn-call {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  height: 48px;
+  padding: 0 24px;
+  border-radius: 999px;
+  background: var(--good);
+  color: #fff;
+  font-weight: 600;
+}
+.drawer-foot .btn-call {
+  flex: 1;
+}
+
+/* ───────── phone polish ───────── */
+@media (max-width: 1023px) {
+  /* the logo row scrolls away with the page; the Apartments / Priority / Saved row stays put */
+  .header {
+    --row1: 56px;
+    top: calc(-1 * (var(--row1) + env(safe-area-inset-top)));
+    row-gap: 8px;
+    padding-top: calc(8px + env(safe-area-inset-top));
+    padding-bottom: 8px;
+    padding-left: max(var(--pad-x), env(safe-area-inset-left));
+    padding-right: max(var(--pad-x), env(safe-area-inset-right));
+  }
+  .segments {
+    padding: 4px;
+  }
+  .segment {
+    height: 36px;
+    font-size: 13.5px;
+  }
+  .toolbar {
+    gap: 6px;
+    padding-top: 8px;
+    padding-bottom: 10px;
+  }
+  .tiers button {
+    padding: 4px 0 8px;
+    font-size: 14.5px;
+  }
+  .search-box {
+    height: 46px;
+  }
+  .page {
+    padding-top: 14px;
+  }
+  .titlebar {
+    margin-bottom: 12px;
+  }
+  .titlebar h1 {
+    font-size: 21px;
+  }
+  .count {
+    margin-top: 4px;
+  }
+  .cards {
+    gap: 14px;
+  }
+  .card-img {
+    aspect-ratio: 1.62;
+  }
+  .agent {
+    left: 8px;
+    right: 8px;
+    bottom: 8px;
+    gap: 8px;
+    padding: 6px 9px;
+  }
+  .round-btn {
+    width: 40px;
+    height: 40px;
+  }
+  .sheet-foot,
+  .drawer-foot {
+    padding-bottom: calc(14px + env(safe-area-inset-bottom));
+  }
+  .toast {
+    bottom: calc(84px + env(safe-area-inset-bottom));
+  }
+  .update-sheet {
+    width: 100%;
+  }
+  /* small screens: keep Update big and obvious, drop the least-used round buttons first */
+  .update-btn {
+    height: 40px;
+    padding: 0 14px 0 11px;
+  }
+  /* on the map, dots first: price tags only appear once you've zoomed in enough not to overlap */
+  .zoomed-out .pin-pill {
+    display: none;
+  }
+  .zoomed-out .pin-wrap.is-selected .pin-pill,
+  .zoomed-out .pin-wrap.is-hover .pin-pill {
+    display: inline;
+  }
+  .zoomed-out .pin-dot {
+    width: 13px;
+    height: 13px;
+  }
+  .pin-dot {
+    position: relative;
+  }
+  .pin-dot::after {
+    content: "";
+    position: absolute;
+    inset: -14px;
+  }
+}
+@media (max-width: 430px) {
+  .header-right {
+    gap: 6px;
+  }
+  .header-right .outline-btn[aria-label="Copy a link to this view"] {
+    display: none;
+  }
+  .logo {
+    gap: 8px;
+    font-size: 21px;
   }
 }
 

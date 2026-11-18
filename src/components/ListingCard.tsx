@@ -11,6 +11,7 @@ interface Props {
   saved: boolean;
   active: boolean;
   daysOld: number | null;
+  isNew: boolean;
   onOpen: (id: string) => void;
   onToggleSave: (id: string) => void;
   onShowOnMap: (id: string) => void;
@@ -23,7 +24,7 @@ export const priceText = (l: Listing): string =>
 export const bedsText = (l: Listing): string | null =>
   l.rooms == null ? null : l.rooms === 0 ? "Studio" : `${l.rooms} bed`;
 
-function CardImpl({ listing: l, saved, active, daysOld, onOpen, onToggleSave, onShowOnMap, onHover }: Props) {
+function CardImpl({ listing: l, saved, active, daysOld, isNew, onOpen, onToggleSave, onShowOnMap, onHover }: Props) {
   const stop = (fn: () => void) => (e: MouseEvent) => {
     e.stopPropagation();
     fn();
@@ -81,6 +82,7 @@ function CardImpl({ listing: l, saved, active, daysOld, onOpen, onToggleSave, on
         <span className="status">
           <i />
           For sale
+          {isNew && <b className="tag-new">New</b>}
         </span>
         <div className="round-btns">
           <button className="round-btn" aria-label="Show on map" title="Show on map" onClick={stop(() => onShowOnMap(l.id))}>
@@ -99,6 +101,11 @@ function CardImpl({ listing: l, saved, active, daysOld, onOpen, onToggleSave, on
 
       <div className="card-price">
         <strong>{priceText(l)}</strong>
+        {l.price_was != null && l.price != null && (
+          <span className="chip-drop" title={`Was ${eur(l.price_was)}`}>
+            ↓ {eur(l.price_was - l.price)}
+          </span>
+        )}
         {below && (
           <span className="chip-good" title={l.score_reason}>
             {Math.round(l.discount_pct!)}% below median

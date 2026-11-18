@@ -81,6 +81,7 @@ export function DetailDrawer({ listing: l, saved, daysOld, onToggleSave, onClose
               <div className="drawer-price">
                 <strong>{priceText(l)}</strong>
                 {l.eur_m2 && <small>{eur(l.eur_m2)} / m²</small>}
+                {l.price_was != null && <small>price cut from {eur(l.price_was)}</small>}
               </div>
             </div>
 
@@ -183,8 +184,14 @@ export function DetailDrawer({ listing: l, saved, daysOld, onToggleSave, onClose
             <IconHeart size={17} filled={saved} />
             {saved ? "Saved" : "Save"}
           </button>
-          <a className="btn-primary" href={l.url} target="_blank" rel="noopener noreferrer">
-            Open the ad
+          {l.phone && (
+            <a className="btn-call" href={`tel:${l.phone.replace(/\s/g, "")}`}>
+              <IconPhone size={17} />
+              Call
+            </a>
+          )}
+          <a className={l.phone ? "btn-outline" : "btn-primary"} href={l.url} target="_blank" rel="noopener noreferrer">
+            {l.phone ? "The ad" : "Open the ad"}
             <IconExternal size={16} />
           </a>
         </footer>

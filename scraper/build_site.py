@@ -10,7 +10,7 @@ OUT = os.path.join(ROOT, "public", "data", "listings.json")
 
 KEEP = ("id source url title price area rooms floor hood tier agency date days_old "
         "eur_m2 hood_median_eur_m2 discount_pct score score_reason features "
-        "price_derived area_uncertain score_parts image seller_type").split()
+        "price_derived area_uncertain score_parts image seller_type price_was").split()
 
 SURROGATE = re.compile("[\ud800-\udfff]")
 # 044 123 456 / 049-123-456 / +383 44 123 456
@@ -55,6 +55,8 @@ def main():
             phone = phone_of(l["description"])
             if phone:
                 r["phone"] = phone
+        if l.get("first_seen"):
+            r["first_seen"] = l["first_seen"][:10]     # day is enough for the "New" badge
         if l.get("is_priority"):
             r["prio"] = 1
         if r.get("seller_type"):
@@ -64,11 +66,15 @@ def main():
             r["sp"] = cell
         out.append(r)
 
-    payload = {"generated": src["generated"], "source": src["source"],
-               "stats": src["stats"], "listings": out}
+    payload = {"generated": src["generated"], "updated": src.get("updated") or src["generated"],
+               "source": src["source"], "stats": src["stats"], "listings": out}
     os.makedirs(os.path.dirname(OUT), exist_ok=True)
     with open(OUT, "w", encoding="utf-8") as f:
         json.dump(payload, f, ensure_ascii=False, separators=(",", ":"))
+    # ~100 bytes the app can poll to learn whether the big file has changed
+    with open(os.path.join(os.path.dirname(OUT), "meta.json"), "w", encoding="utf-8") as f:
+        json.dump({"generated": payload["generated"], "updated": payload["updated"],
+                   "total": len(out)}, f, separators=(",", ":"))
     withimg = sum(1 for r in out if r.get("sp"))
     withphone = sum(1 for r in out if r.get("phone"))
     print(f"{OUT} -> {os.path.getsize(OUT):,} bytes | {len(out)} listings | "

@@ -21,6 +21,10 @@ export interface Listing {
   sp?: [number, number, number];
   price?: number;
   price_derived?: boolean;
+  /** previous asking price, present when the ad's price was cut in the last 60 days */
+  price_was?: number;
+  /** day the scraper first saw the ad (YYYY-MM-DD) */
+  first_seen?: string;
   area?: number;
   area_uncertain?: boolean;
   rooms?: number;
@@ -45,6 +49,8 @@ export interface Listing {
 
 export interface Dataset {
   generated: string;
+  /** when the listings last changed; absent in older snapshots */
+  updated?: string;
   source: string;
   stats: { total: number; priced: number; core: number; priority?: number };
   listings: Listing[];

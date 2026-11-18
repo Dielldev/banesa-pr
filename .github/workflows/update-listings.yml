@@ -1,0 +1,75 @@
+name: Update listings
+
+# Free, hands-off refresh: scrape -> commit data -> Vercel redeploys from the push.
+#   quick  every hour      only new ads (a few requests); commits nothing if nothing is new
+#   full   Sundays         deep sweep of every source + removes ads that have disappeared
+# Run it by hand any time: Actions tab -> "Update listings" -> Run workflow.
+# The site's Update button starts this same workflow through api/refresh.js.
+on:
+  schedule:
+    - cron: "17 * * * *"
+    - cron: "43 3 * * 0"
+  workflow_dispatch:
+    inputs:
+      mode:
+        description: "quick = new ads only, full = deep sweep"
+        type: choice
+        options: [quick, full]
+        default: quick
+
+permissions:
+  contents: write
+
+# never run two scrapes at once, and never kill one half-way through a commit
+concurrency:
+  group: update-listings
+  cancel-in-progress: false
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"      # the scraper is standard-library only: nothing to pip install
+
+      - name: Scraper tests
+        run: python3 -m unittest test_update
+        working-directory: scraper
+
+      - name: Fetch new listings
+        env:
+          SCHEDULE: ${{ github.event.schedule }}
+          MODE_INPUT: ${{ inputs.mode }}
+        run: |
+          if [ "$SCHEDULE" = "43 3 * * 0" ] || [ "$MODE_INPUT" = "full" ]; then FLAG="--full"; else FLAG=""; fi
+          # --budget stops cleanly before the job timeout; the next run picks up where this one stopped
+          python3 -u scraper/update.py $FLAG --budget 45
+
+      - name: Detect changes
+        id: detect
+        run: |
+          git add data/store.json public/data/listings.json public/data/meta.json
+          if git diff --cached --quiet; then
+            echo "Nothing changed — no commit, no redeploy."
+            echo "changed=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "changed=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      # The step name is read by api/refresh.js: "Push update" succeeded = new data is on its way.
+      - name: Push update
+        if: steps.detect.outputs.changed == 'true'
+        run: |
+          MSG=$(python3 -c "import json; r=json.load(open('data/store.json'))['last_run']; print(f\"data: {r['mode']} update — {r['new']} new, {r['price_changes']} price changes, {r['removed']} removed\")")
+          git config user.name "banesa-bot"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git commit -m "$MSG"
+          for i in 1 2 3; do
+            git pull --rebase -X theirs origin "${GITHUB_REF_NAME}" && git push && exit 0
+            sleep 5
+          done
+          exit 1
