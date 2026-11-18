@@ -181,6 +181,26 @@ class Ingest(unittest.TestCase):
         self.assertEqual(rep["failed"], 1)
 
 
+class Scope(unittest.TestCase):
+    def test_rejects_rentals_offices_houses_and_other_cities(self):
+        for title in ("70m² rental apartment in Qafa", "ZYRE ME QERA LAKRISHTE", "Lokal në shitje 152m² në Qendër",
+                      "Premises for sale 181m² in Bregu i Diellit", "Shtëpi 400m² në SHITJE te 4 Llullat",
+                      "Shitet banesa në lagjën Qender – Shkup", "Banesë – Zyre 140m² me QIRA në Pejton"):
+            self.assertTrue(update.out_of_scope({"title": title}), title)
+
+    def test_keeps_real_apartments(self):
+        for title in ("Apartment for sale 83m² in Mati 1 neighborhood", "Shitet banesa 84m2 ne qender te qafa",
+                      "Penthouse 217m2 ne shitje ne Lagjen Arberia", "PENT HOUSE 96+40m2 kati 7 te VERA HILL",
+                      "Banesa 60-110m2 te URTINA ne DRAGODAN RRUGE MITROVICES", "Banesë për shitje dhe qira në Dardani"):
+            self.assertFalse(update.out_of_scope({"title": title}), title)
+
+    def test_sweep_moves_existing_offenders_to_skipped(self):
+        ctx = make_ctx(rows=[row(1, title="Zyre në shitje"), row(2, title="Banesë 60m² në shitje")])
+        self.assertEqual(update.sweep_scope(ctx), 1)
+        self.assertIn("mj-1", ctx.store["skipped"])
+        self.assertIn("mj-2", ctx.store["listings"])
+
+
 class Budget(unittest.TestCase):
     def ctx(self, minutes):
         return update.Ctx(storemod.empty(), False, [], minutes, False)

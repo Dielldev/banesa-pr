@@ -74,12 +74,13 @@ class Ctx:
         self.removed = []          # ids pruned
         self.swept = set()         # id-prefix groups that had a complete sweep this run
         self.report = {}
+        self.dropped_scope = 0     # existing rows moved out by sweep_scope
         self.deferred = 0          # fetches skipped because the --budget ran out
         self.budget_end = time.time() + budget_min * 60 if budget_min else None
         self.deadline = self.budget_end      # the running source's own cut-off (see allot())
 
     def expired(self):
-        return self.deadline is not None and time.time() > self.deadline
+        return self.deadline is not None and time.time() >= self.deadline
 
     def allot(self, left):
         """Give the next source a slice of what remains of --budget, in proportion to its weight
@@ -105,10 +106,30 @@ def skip(ctx, rid):
     ctx.known.add(rid)
 
 
+RENTAL_RX = re.compile(r"\b(rental|for rent|to rent|me qera|me qira|me qeraje|qera|qira)\b", re.I)
+SALE_RX = re.compile(r"\b(for sale|në shitje|ne shitje|shitet|për shitje|per shitje|ofrohet për shitje)\b", re.I)
+HOME_RX = re.compile(r"\b(banes\w*|apartment\w*|pent\s?house|duplex|studio|flat)\b", re.I)
+NOT_HOME_RX = re.compile(r"\b(zyr\w*|lokal\w*|office\w*|premises|shop|biznes\w*|business|land|toke|tokë|truall\w*|parcel\w*|garazh\w*|garage|depo\w*|warehouse|shtëpi\w*|shtepi\w*|house|villa)\b", re.I)
+OTHER_CITY_RX = re.compile(r"\b(shkup|skopje|tirana|tiranë|durr[ëe]s)\b", re.I)   # not Kosovo towns: street names reuse them
+
+
+def out_of_scope(row):
+    """Title-level safety net: rentals, offices/land/houses and other cities never belong on an
+    apartments-for-sale board, whatever a scraper's own flags say."""
+    title = row.get("title") or ""
+    if RENTAL_RX.search(title) and not SALE_RX.search(title):
+        return True
+    if NOT_HOME_RX.search(title) and not HOME_RX.search(title):
+        return True
+    if OTHER_CITY_RX.search(title):
+        return True
+    return False
+
+
 def accept(ctx, row):
     """Keep a freshly fetched row, or park it in `skipped` if it's out of scope."""
     rid = row["id"]
-    if row.get("skip") or row.get("is_rental") or row.get("tier") not in ("core", "nearby"):
+    if row.get("skip") or row.get("is_rental") or row.get("tier") not in ("core", "nearby") or out_of_scope(row):
         skip(ctx, rid)
         return False
     row = {k: v for k, v in row.items() if k != "skip"}
@@ -119,6 +140,19 @@ def accept(ctx, row):
     ctx.known.add(rid)
     ctx.new.add(rid)
     return True
+
+
+def sweep_scope(ctx):
+    """Move rows already in the store that fail the scope check into `skipped` (one-off clean-up
+    that also guards against a scraper bug letting rentals/offices in)."""
+    bad = [rid for rid, r in ctx.store["listings"].items() if out_of_scope(r)]
+    for rid in bad:
+        del ctx.store["listings"][rid]
+        ctx.store["skipped"][rid] = ctx.today
+    if bad:
+        ctx.dropped_scope = len(bad)
+        log(f"  scope check: moved {len(bad)} rentals/offices/houses/other-city ads out of the board")
+    return len(bad)
 
 
 def refresh_known(ctx, stub):
@@ -492,6 +526,7 @@ def run(argv=None):
     }
     group_of = {"merrjep": "mj", "storefronts": "mj", "prishtina_io": "pio", "anem": "ane", "inrealestate": "inr"}
     group_ok = {}
+    sweep_scope(ctx)
     only.sort(key=RUN_ORDER.index)               # cheap sites first, MerrJep last (see WEIGHT)
     for n, name in enumerate(only):
         ctx.allot(only[n:])
@@ -525,7 +560,7 @@ def run(argv=None):
         prune(ctx)
 
     errors = [n for n, r in ctx.report.items() if r["state"] == "error"]
-    meaningful = bool(ctx.new or ctx.updated or ctx.removed)
+    meaningful = bool(ctx.new or ctx.updated or ctx.removed or ctx.dropped_scope)
     first_build = not os.path.exists(build_site.OUT)
     out = None
     if meaningful or args.full or first_build:
